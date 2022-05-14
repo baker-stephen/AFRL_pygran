@@ -11,23 +11,29 @@ def output_vti(postions:list,tstep:int):
 
 
 if __name__ == "__main__":
-    for step in range(1000,100001,1000):
+    atom_count = 64
+    for step in range(1000,2000001,1000):
         positions = []
         if step%10000==0:
             print("step: ",step)
-        with open('out-SpringDashpot-22:36:38-13.5.2022/traj/particles'+str(step)+'.vtk', 'r') as read:
-            atom_count = 6
+        with open('out-SpringDashpot-11:16:41-14.5.2022/traj/particles'+str(step)+'.vtk', 'r') as read:
+
+            this_atom_count = 0
             for i in range(9):
                 if i == 3:
-                    atom_count = int(read.readline())
+                    this_atom_count = int(read.readline())
+                    # print("this_atom_count:",this_atom_count)
                 else:
                     read.readline()
             for i in range(atom_count):
-                positions.append([])
-                data = read.readline().split()
-                positions[i].append(float(data[2]))
-                positions[i].append(float(data[3]))
-                positions[i].append(float(data[4]))
+                if i<this_atom_count:
+                    positions.append([])
+                    data = read.readline().split()
+                    positions[i].append(float(data[2]))
+                    positions[i].append(float(data[3]))
+                    positions[i].append(float(data[4]))
+                else:
+                    positions.append([-1, -1, 0])
             output_vti(positions,step)
             read.close()
 
