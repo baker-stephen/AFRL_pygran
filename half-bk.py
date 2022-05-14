@@ -13,17 +13,17 @@ if __name__ == "__main__":
         # Define component(s)
         # Dp small = .25" = .00635m
         'species': (
-            {'material': organic, 'style': 'sphere', 'radius': .25},),
+            {'material': organic, 'style': 'sphere', 'radius': .125},),
 
         # Set skin distance to be 1/4 particle diameter
         # For dpsmall, 1/4 is .0015875
-        'nns_skin': .0625,
+        'nns_skin': .03125,
 
         # Timestep
         'dt': 1e-6,
 
         # Apply gravitional force in the negative direction along the z-axis
-        'gravity': (385.827, 0, -1, 0),
+        'gravity': (385.827, 0, 0, -1),
 
         # Setup I/O
         'traj': {'pfile': 'particles*.vtk', 'mfile': 'pipe*.vtk'},
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     # Insert 800 particles once in a cylinder
     # My best guess for cylinder numbers: x0, y0, r, z_min, z_max
     # pipe ID: 5/8" = .015875m, r = .0079375m, subtract sphere radius: .0015875, height: 4" = .1016m
-    insert = sim.insert(species=1, value=15, region=('cylinder', 'z', 0, 0, 0.2875, .3, 4.7),
+    insert = sim.insert(species=1, value=15, region=('cylinder', 'z', 0, 0, 0.1875, .3, 4.7),
                         args={'orientation': 'random'})
 
     # Add dissipative force proprtional to tablet velocity

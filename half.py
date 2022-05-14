@@ -20,10 +20,10 @@ if __name__ == "__main__":
         'nns_skin': .03125,
 
         # Timestep
-        'dt': 1e-6,
+        'dt': 1e-5,
 
         # Apply gravitional force in the negative direction along the z-axis
-        'gravity': (385.827, 0, -1, 0),
+        'gravity': (385.827, 0, 0, -1),
 
         # Setup I/O
         'traj': {'pfile': 'particles*.vtk', 'mfile': 'pipe*.vtk'},
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     # Insert 800 particles once in a cylinder
     # My best guess for cylinder numbers: x0, y0, r, z_min, z_max
     # pipe ID: 5/8" = .015875m, r = .0079375m, subtract sphere radius: .0015875, height: 4" = .1016m
-    insert = sim.insert(species=1, value=15, region=('cylinder', 'z', 0, 0, 0.2875, .3, 4.7),
+    insert = sim.insert(species=1, value=15, region=('cylinder', 'z', 0, 0, 0.1875, .3, 4.7),
                         args={'orientation': 'random'})
 
     # Add dissipative force proprtional to tablet velocity

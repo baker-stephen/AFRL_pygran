@@ -15,7 +15,7 @@ if __name__ == "__main__":
         positions = []
         if step%10000==0:
             print("step: ",step)
-        with open('out-SpringDashpot-20:20:20-13.5.2022/traj/particles'+str(step)+'.vtk', 'r') as read:
+        with open('out-SpringDashpot-22:36:38-13.5.2022/traj/particles'+str(step)+'.vtk', 'r') as read:
             atom_count = 6
             for i in range(9):
                 if i == 3:
