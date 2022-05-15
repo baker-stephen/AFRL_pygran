@@ -4,7 +4,7 @@ from pygran.params import steel, organic, glass
 
 if __name__ == "__main__":
 
-    total_parts = 50
+    total_parts = 70
     num_insertions = 10
     parts_per_insert = total_parts//num_insertions
     # Create a dictionary of physical parameters
@@ -12,7 +12,7 @@ if __name__ == "__main__":
 
         # Define the system
         'boundary': ('f', 'f', 'f'),  # fixed BCs
-        'box': (-1, 1, -1, 1, -.2, 5),  # simulation box size
+        'box': (-1, 1, -1, 1, -.2, 8),  # simulation box size
 
         # Define component(s)
         # Dp small = .25" = .00635m
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     # My best guess for cylinder numbers: x0, y0, r, z_min, z_max
     # pipe ID: 5/8" = .015875m, r = .0079375m, subtract sphere radius: .0015875, height: 4" = .1016m
     for i in range(num_insertions):
-        insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, 0.1875, .5, 4.7),
+        insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, 0.1875, 4.25, 7.75),
                             args={'orientation': 'random'})
         # Add dissipative force proprtional to tablet velocity
         air_resistance = sim.addViscous(species=1, gamma=0.1)
