@@ -1,11 +1,12 @@
 from pygran import simulation
 from pygran.params import steel, organic, glass
+import numpy as np
 
 
 if __name__ == "__main__":
 
-    total_parts = 70
-    num_insertions = 10
+    total_parts = 77
+    num_insertions = 7
     parts_per_insert = total_parts//num_insertions
     # Create a dictionary of physical parameters
     params = {
@@ -33,7 +34,7 @@ if __name__ == "__main__":
         'traj': {'pfile': 'particles*.vtk', 'mfile': 'pipe*.vtk'},
 
         # Stage runs [optional]
-        'stages': {'insertion': 2e6//num_insertions},
+        'stages': {'insertion': 1e5},
 
         # Define mesh for rotating mesh (tumbler)
         # TODO: define PVC material
@@ -46,9 +47,23 @@ if __name__ == "__main__":
 
     # Create an instance of the DEM class
     sim = simulation.DEM(**params)
+
+    #Setup shaking:
+    # freq = 40*2*np.pi
+    # nTaps = 100
+    # period = 1/freq
+    # nSteps = period / params['dt']
+    # amp = .1
+    #
+    # for i in range(nTaps):
+    #     sim.moveMesh('pipe', viblin=('axis 0 0 1', 'order 1', 'amplitude {}'.format(amp), 'phase 0', 'period {}'.format(period)))
+    #     sim.run(nSteps, params['dt'])
+    #     sim.remove('moveMesh')
+
     # Insert 800 particles once in a cylinder
     # My best guess for cylinder numbers: x0, y0, r, z_min, z_max
     # pipe ID: 5/8" = .015875m, r = .0079375m, subtract sphere radius: .0015875, height: 4" = .1016m
+
     for i in range(num_insertions):
         insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, 0.1875, 4.25, 7.75),
                             args={'orientation': 'random'})
@@ -57,3 +72,35 @@ if __name__ == "__main__":
 
         # Run insertion stage
         sim.run(params['stages']['insertion'], params['dt'])
+        sim.remove(insert)
+
+    #Setup shaking:
+    freq = 40*2*np.pi
+    nTaps = 100
+    period = 1/freq
+    nSteps = period / params['dt']
+    ampz = .01
+    ampxy = .005
+
+    for i in range(nTaps):
+        #vibrate x
+        mm = sim.moveMesh('pipe', viblin=(
+            'axis 1 0 0', 'order 1', 'amplitude {}'.format(ampxy), 'phase 0', 'period {}'.format(period)))
+        sim.run(nSteps, params['dt'])
+        sim.remove(mm)
+
+        #vibrate y
+        mm = sim.moveMesh('pipe', viblin=(
+            'axis 0 1 0', 'order 1', 'amplitude {}'.format(ampxy), 'phase 0', 'period {}'.format(period)))
+        sim.run(nSteps, params['dt'])
+        sim.remove(mm)
+
+        #vibrate z
+        mm = sim.moveMesh('pipe', viblin=(
+            'axis 0 0 1', 'order 1', 'amplitude {}'.format(ampz), 'phase 0', 'period {}'.format(period)))
+        sim.run(nSteps, params['dt'])
+        sim.remove(mm)
+
+    #let settle
+
+    sim.run(params['stages']['insertion'], params['dt'])
