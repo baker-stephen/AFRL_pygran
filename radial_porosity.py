@@ -83,19 +83,19 @@ if __name__ == "__main__":
         for j, theta in enumerate(thetas):
             costh = np.cos(theta)
             sinth = np.sin(theta)
-            k = r_min
+            i = r_min
             for r in rs[r_min:r_max+1]:
                 x = r * costh
                 y = r * sinth
-                i = z_min
+                k = z_min
                 for z in zs[z_min:z_max+1]:
                     if filled[i][j][k] > .5:
                         continue
                     d_sq = (x - x_p) ** 2 + (y - y_p) ** 2 + (z - z_p) ** 2
                     if d_sq <= r_ball_sq:
                         filled[i][j][k] = 1
-                    i += 1
-                k += 1
+                    k += 1
+                i += 1
 
     print("done with determining things")
 
