@@ -16,23 +16,23 @@ if __name__ == "__main__":
         'boundary': ('f', 'f', 'f'),  # fixed BCs
         # z bound given by funnel height (2"/sqrt(2) = 35.921mm) + pipe height (1.2"=30.48mm) + extra insertion room
         # x and y bounds given by funnel OR (funnel height) + pipe OR (.375"/2 = 4.7625mm) = 40.68mm
-        # 'box': (-50e-3, 50e-3, -50e-3, 50e-3, -10e-3, 90e-3),  # simulation box size
-        'box': (-2, 2, -2, 2, -.2, 4),  # simulation box size in inches
+        'box': (-50e-3, 50e-3, -50e-3, 50e-3, -10e-3, 90e-3),  # simulation box size
+        # 'box': (-2, 2, -2, 2, -.2, 4),  # simulation box size in inches
         # Define component(s)
         # Dp mini = 1mm, r = .5mm = .0198505"
         'species': (
-            {'material': glass, 'style': 'sphere', 'radius': .5/25.4},),
+            {'material': glass, 'style': 'sphere', 'radius': .5e-3},),
 
         # Set skin distance to be 1/4 particle diameter
         # 'nns_skin': .25e-3,
-        'nns_skin': (.5/25.4)/2,
+        'nns_skin': (.5e-3)/2,
 
         # Timestep
         'dt': 5e-6,
 
         # Apply gravitional force in the negative direction along the z-axis
-        # 'gravity': (9.81, 0, 0, -1),
-        'gravity': (385.827, 0, 0, -1),
+        'gravity': (9.81, 0, 0, -1),
+        # 'gravity': (385.827, 0, 0, -1),
 
         # Setup I/O
         'traj': {'pfile': 'particles*.vtk', 'mfile': 'pipe*.vtk'},
@@ -44,14 +44,22 @@ if __name__ == "__main__":
         # Scale since stl is in inches
         # TODO: define PVC material
         'mesh': {
-            'pipe': {'file': 'mesh/one_quarter_funnel.stl', 'mtype': 'mesh/surface/stress', 'material': steel,
-                     # 'args': {'scale': .0254}
+            'pipe': {'file': 'mesh/one_quarter_funnel_blend.stl', 'mtype': 'mesh/surface/stress', 'material': steel,
+                     'args': {'scale': .0254,}
                      },
-        }
+        },
     }
+
+    print("sim")
 
     # Create an instance of the DEM class
     sim = simulation.DEM(**params)
+
+    print("command")
+
+    sim.command("fix cad all mesh/surface file /home/stephen/pg/DEM_tablet_ex/mesh/one_quarter_funnel_blend.stl type 1")
+
+    print("after")
 
     #Setup shaking:
     # freq = 40*2*np.pi
@@ -69,10 +77,10 @@ if __name__ == "__main__":
     # My best guess for cylinder numbers: x0, y0, r, z_min, z_max
     # Minimum height of insert cylinder of rad .5": 12.2mm above top of pipe, or z = 43.18
     for i in range(num_insertions):
-        # insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, 12.2e-3, 45e-3, 85e-3),
-        #                     args={'orientation': 'random'})
-        insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, 12.2/25.4, 45/25.4, 85/25.4),
+        insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, 12.2e-3, 45e-3, 85e-3),
                             args={'orientation': 'random'})
+        # insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, 12.2/25.4, 45/25.4, 85/25.4),
+        #                     args={'orientation': 'random'})
         # Add dissipative force proprtional to tablet velocity
         air_resistance = sim.addViscous(species=1, gamma=0.1)
 
