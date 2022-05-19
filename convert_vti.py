@@ -13,11 +13,11 @@ def output_vti(postions:list,tstep:int):
 if __name__ == "__main__":
     atom_count = 1000
     box_bounds = []
-    for step in range(10000, 2000001, 10000):
+    for step in range(10000, 5070001, 10000):
         positions = []
         if step%100000==0:
             print("step: ",step)
-        with open('out-SpringDashpot-1:41:13-18.5.2022/traj/particles'+str(step)+'.vtk', 'r') as read:
+        with open('out-SpringDashpot-12:36:19-18.5.2022/traj/particles'+str(step)+'.vtk', 'r') as read:
 
             this_atom_count = 0
             for i in range(9):
