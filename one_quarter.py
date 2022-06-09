@@ -153,8 +153,8 @@ if __name__ == "__main__":
     nTaps = 10
     period = 1/freq
     nSteps = period / params['dt']
-    ampz = .005
-    ampxy = .001
+    ampz = .01
+    ampxy = .005
 
     for i in range(nTaps):
         #vibrate x
