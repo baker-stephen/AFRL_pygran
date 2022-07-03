@@ -7,10 +7,10 @@ import numpy as np
 
 if __name__ == "__main__":
 
-    total_parts = 300
+    total_parts = 1500 #TODO: change total particles
     num_insertions = 1
     parts_per_insert = total_parts//num_insertions
-    dp_in = 7/16
+    dp_in = 1/4 #TODO: change particle diameter
     # Create a dictionary of physical parameters
     params = {
 
@@ -19,15 +19,15 @@ if __name__ == "__main__":
         # z bound given by funnel height (2"/sqrt(2) = 35.921mm) + pipe height (1.2"=30.48mm) + extra insertion room
         # x and y bounds given by funnel OR (funnel height) + pipe OR (.375"/2 = 4.7625mm) = 40.68mm
         #'box': (-22, 22, -22, 22, -3, 75),  # simulation box size mm
-         'box': (-4, 4, -4, 4, -1.1, 17),  # simulation box size in inches
+         'box': (-4, 4, -4, 4, -1.1, 17),  # TODO: simulation box size in inches
         # Define component(s)
         # Dp mini = 1mm, r = .5mm = .0198505"
         'species': (
-            {'material': glass, 'style': 'sphere', 'radius': dp_in/2},), #TODO: change this for different Dp
+            {'material': glass, 'style': 'sphere', 'radius': dp_in/2},),
 
         # Set skin distance to be 1/4 particle diameter
         # 'nns_skin': .25e-3,
-        'nns_skin': dp_in/4, #TODO: change this for different Dp
+        'nns_skin': dp_in/4,
 
         # Timestep
         # Needs to be reduced to satisfy rayleigh time constraint, apparently dependent on particle size
@@ -80,11 +80,11 @@ if __name__ == "__main__":
 
     #Setup shaking:
     freq = 10*2*np.pi
-    nTaps = 20
+    nTaps = 30
     period = 1/freq
     nSteps = period / params['dt']
-    ampz = .02
-    ampxy = .015
+    ampz = .025
+    ampxy = .02
 
     for i in range(nTaps//2):
         #vibrate x
