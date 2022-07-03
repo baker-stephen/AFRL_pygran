@@ -48,7 +48,7 @@ if __name__ == "__main__":
         # Used meshlab to reduce mesh count by .9, still needed curvature tolerance
         # TODO: define PVC material
         'mesh': {
-            'pipe': {'file': 'mesh/three_half_in_pg', 'mtype': 'mesh/surface/stress', 'material': steel,
+            'pipe': {'file': 'mesh/three_half_in_pg.stl', 'mtype': 'mesh/surface/stress', 'material': steel,
                      'args': {'curvature_tolerant': 'yes'}
                      },
         },
