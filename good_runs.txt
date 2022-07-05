@@ -6,3 +6,4 @@ Capped tube, Dp 1/4in, ID 1 in: out-SpringDashpot-16:25:23-12.6.2022
 Capped tube, Dp 7/16in, ID 1 in, not a ton of shaking: out-SpringDashpot-17:34:49-12.6.2022
 Dp 7/16in, ID 1.5 in, a little more shaking: out-SpringDashpot-9:26:45-3.7.2022
 Dp 1/4in ID 1.5 in, increases to shaking duration, amplitude: out-SpringDashpot-13:31:37-3.7.2022
+Do 1/8 in ID 1.5 in, same shake as 1/4 in 1.5 in ID: out-SpringDashpot-9:39:42-4.7.2022
