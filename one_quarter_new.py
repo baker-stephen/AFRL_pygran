@@ -7,10 +7,10 @@ import numpy as np
 
 if __name__ == "__main__":
 
-    total_parts = 100 #TODO: change total particles
+    total_parts = 400 #TODO: change total particles
     num_insertions = 1
     parts_per_insert = total_parts//num_insertions
-    dp_in = 5/16 #TODO: change particle diameter
+    dp_in = 3/16 #TODO: change particle diameter
     # Create a dictionary of physical parameters
     params = {
 
