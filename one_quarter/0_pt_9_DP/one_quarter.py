@@ -66,7 +66,7 @@ if __name__ == "__main__":
     for i in range(num_insertions):
         # insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, 12.2e-3, 45e-3, 85e-3),
         #                     args={'orientation': 'random'})
-        insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, 3.8, 9, 13.5),
+        insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, .4, 2, 3),
                             args={'orientation': 'random'})
 
 
