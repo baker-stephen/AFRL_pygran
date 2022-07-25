@@ -1,6 +1,6 @@
 
 def output_vti(postions:list,tstep:int):
-    with open('csvs_new/particles'+str(tstep)+'.csv','w') as write:
+    with open('csvs/particles'+str(tstep)+'.csv','w') as write:
         write.write("x,y,z\n")
         for part in range(len(postions)):
             if len(postions[part]) < 3:
@@ -17,7 +17,7 @@ if __name__ == "__main__":
         positions = []
         if step%100000==0:
             print("step: ",step)
-        with open('out-SpringDashpot-16:33:25-15.7.2022/traj/particles'+str(step)+'.vtk', 'r') as read:
+        with open('out-SpringDashpot-11:14:50-18.7.2022/traj/particles'+str(step)+'.vtk', 'r') as read:
 
             this_atom_count = 0
             for i in range(9):
