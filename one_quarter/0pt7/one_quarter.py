@@ -2,15 +2,12 @@ from pygran import simulation
 from pygran.params import steel, organic, glass
 import numpy as np
 
-#TODO: THIS IS SET UP FOR 4MM ID 1MM DP
-#TODO: EVERYTHING IN MM
-
 if __name__ == "__main__":
 
-    total_parts = 2600
+    total_parts = 3000 #TODO: adjust total parts
     num_insertions = 1
     parts_per_insert = total_parts//num_insertions
-    dp_in = 1/8
+    dp_in = 0.7/25.4 #TODO: adjust DP
     # Create a dictionary of physical parameters
     params = {
 
@@ -19,15 +16,15 @@ if __name__ == "__main__":
         # z bound given by funnel height (2"/sqrt(2) = 35.921mm) + pipe height (1.2"=30.48mm) + extra insertion room
         # x and y bounds given by funnel OR (funnel height) + pipe OR (.375"/2 = 4.7625mm) = 40.68mm
         #'box': (-22, 22, -22, 22, -3, 75),  # simulation box size mm
-         'box': (-4.5, 4.5, -4.5, 4.5, -.5, 15),  # simulation box size in inches
+         'box': (-0.6, 0.6, -0.6, 0.6, -1.5, 6),  # simulation box size in inches
         # Define component(s)
         # Dp mini = 1mm, r = .5mm = .0198505"
         'species': (
-            {'material': glass, 'style': 'sphere', 'radius': dp_in/2},), #TODO: change this for different Dp
+            {'material': glass, 'style': 'sphere', 'radius': dp_in/2},),
 
         # Set skin distance to be 1/4 particle diameter
         # 'nns_skin': .25e-3,
-        'nns_skin': dp_in/4, #TODO: change this for different Dp
+        'nns_skin': dp_in/4,
 
         # Timestep
         # Needs to be reduced to satisfy rayleigh time constraint, apparently dependent on particle size
@@ -46,10 +43,8 @@ if __name__ == "__main__":
         # Define mesh for rotating mesh (tumbler)
         # Scale since stl is in inches
         # Used meshlab to reduce mesh count by .9, still needed curvature tolerance
-        # TODO: define PVC material
-        # TODO: upload one inch stl
         'mesh': {
-            'pipe': {'file': '../../mesh/one_in_pg_bl_reduced.stl', 'mtype': 'mesh/surface/stress', 'material': steel,
+            'pipe': {'file': '../../mesh/one_quarter_funnel_closed.stl', 'mtype': 'mesh/surface/stress', 'material': steel,
                      'args': {'curvature_tolerant': 'yes'}
                      },
         },
@@ -67,7 +62,7 @@ if __name__ == "__main__":
     for i in range(num_insertions):
         # insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, 12.2e-3, 45e-3, 85e-3),
         #                     args={'orientation': 'random'})
-        insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, 3.8, 9, 13.5),
+        insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, .4, 2, 3),
                             args={'orientation': 'random'})
 
 
@@ -81,8 +76,8 @@ if __name__ == "__main__":
     nTaps = 30
     period = 1/freq
     nSteps = period / params['dt']
-    ampz = .025
-    ampxy = .02
+    ampz = .02
+    ampxy = .015
 
     for i in range(nTaps//2):
         #vibrate x
