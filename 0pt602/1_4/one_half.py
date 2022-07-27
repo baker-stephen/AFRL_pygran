@@ -4,10 +4,10 @@ import numpy as np
 
 if __name__ == "__main__":
 
-    total_parts = 250 #TODO: adjust total parts
+    total_parts = 220 #TODO: adjust total parts
     num_insertions = 1
     parts_per_insert = total_parts//num_insertions
-    dp_in = 1.7/25.4
+    dp_in = 1/4
     # Create a dictionary of physical parameters
     params = {
 
@@ -16,7 +16,7 @@ if __name__ == "__main__":
         # z bound given by funnel height (2"/sqrt(2) = 35.921mm) + pipe height (1.2"=30.48mm) + extra insertion room
         # x and y bounds given by funnel OR (funnel height) + pipe OR (.375"/2 = 4.7625mm) = 40.68mm
         #'box': (-22, 22, -22, 22, -3, 75),  # simulation box size mm
-         'box': (-0.6, 0.6, -0.6, 0.6, -1.5, 6),  # simulation box size in inches
+         'box': (-0.45, 0.45, -0.45, 0.45, -1, 20),  # simulation box size in inches
         # Define component(s)
         # Dp mini = 1mm, r = .5mm = .0198505"
         'species': (
@@ -45,7 +45,7 @@ if __name__ == "__main__":
         # Used meshlab to reduce mesh count by .9, still needed curvature tolerance
         # TODO: define PVC material
         'mesh': {
-            'pipe': {'file': '../../mesh/one_quarter_funnel_closed.stl', 'mtype': 'mesh/surface/stress', 'material': steel,
+            'pipe': {'file': '../../mesh/half_pg.stl', 'mtype': 'mesh/surface/stress', 'material': steel,
                      'args': {'curvature_tolerant': 'yes'}
                      },
         },
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     for i in range(num_insertions):
         # insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, 12.2e-3, 45e-3, 85e-3),
         #                     args={'orientation': 'random'})
-        insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, .4, 2, 3),
+        insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, .38, 14.125, 17.75),
                             args={'orientation': 'random'})
 
 
@@ -77,8 +77,8 @@ if __name__ == "__main__":
     nTaps = 30
     period = 1/freq
     nSteps = period / params['dt']
-    ampz = .02
-    ampxy = .015
+    ampz = .022
+    ampxy = .017
 
     for i in range(nTaps//2):
         #vibrate x
