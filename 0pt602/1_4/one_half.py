@@ -16,7 +16,7 @@ if __name__ == "__main__":
         # z bound given by funnel height (2"/sqrt(2) = 35.921mm) + pipe height (1.2"=30.48mm) + extra insertion room
         # x and y bounds given by funnel OR (funnel height) + pipe OR (.375"/2 = 4.7625mm) = 40.68mm
         #'box': (-22, 22, -22, 22, -3, 75),  # simulation box size mm
-         'box': (-4, 4, -4, 4, -1, 20),  # simulation box size in inches
+         'box': (-4, 4, -4, 4, -1, 23),  # simulation box size in inches
         # Define component(s)
         # Dp mini = 1mm, r = .5mm = .0198505"
         'species': (
@@ -45,7 +45,7 @@ if __name__ == "__main__":
         # Used meshlab to reduce mesh count by .9, still needed curvature tolerance
         # TODO: define PVC material
         'mesh': {
-            'pipe': {'file': '../../mesh/half_pg_reduced.stl', 'mtype': 'mesh/surface/stress', 'material': steel,
+            'pipe': {'file': '../../mesh/half_pg_taller_reduced.stl', 'mtype': 'mesh/surface/stress', 'material': steel,
                      'args': {'curvature_tolerant': 'yes'}
                      },
         },
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     for i in range(num_insertions):
         # insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, 12.2e-3, 45e-3, 85e-3),
         #                     args={'orientation': 'random'})
-        insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, .35, 14.125, 17.75),
+        insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, .36, 14.125, 21.875),
                             args={'orientation': 'random'})
 
 
