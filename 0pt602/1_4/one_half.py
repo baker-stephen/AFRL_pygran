@@ -4,7 +4,7 @@ import numpy as np
 
 if __name__ == "__main__":
 
-    total_parts = 220 #TODO: adjust total parts
+    total_parts = 210 #TODO: adjust total parts
     num_insertions = 1
     parts_per_insert = total_parts//num_insertions
     dp_in = 1/4
@@ -16,7 +16,7 @@ if __name__ == "__main__":
         # z bound given by funnel height (2"/sqrt(2) = 35.921mm) + pipe height (1.2"=30.48mm) + extra insertion room
         # x and y bounds given by funnel OR (funnel height) + pipe OR (.375"/2 = 4.7625mm) = 40.68mm
         #'box': (-22, 22, -22, 22, -3, 75),  # simulation box size mm
-         'box': (-4, 4, -4, 4, -1, 23),  # simulation box size in inches
+         'box': (-6, 6, -6, 6, -1, 25),  # simulation box size in inches
         # Define component(s)
         # Dp mini = 1mm, r = .5mm = .0198505"
         'species': (
