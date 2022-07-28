@@ -7,10 +7,10 @@ import numpy as np
 
 if __name__ == "__main__":
 
-    total_parts = 230
+    total_parts = 6050
     num_insertions = 1
     parts_per_insert = total_parts//num_insertions
-    dp_in = 1/4
+    dp_in = 3/32
     # Create a dictionary of physical parameters
     params = {
 
