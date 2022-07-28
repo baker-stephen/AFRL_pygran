@@ -4,7 +4,7 @@ import numpy as np
 
 if __name__ == "__main__":
 
-    total_parts = 60 #TODO: adjust total parts
+    total_parts = 50 #TODO: adjust total parts
     num_insertions = 1
     parts_per_insert = total_parts//num_insertions
     dp_in = 7/16
@@ -45,7 +45,7 @@ if __name__ == "__main__":
         # Used meshlab to reduce mesh count by .9, still needed curvature tolerance
         # TODO: define PVC material
         'mesh': {
-            'pipe': {'file': '../../mesh/half_pg_taller_reduced.stl', 'mtype': 'mesh/surface/stress', 'material': steel,
+            'pipe': {'file': '../../mesh/half_pg_taller_blended_funnel_reduced.stl', 'mtype': 'mesh/surface/stress', 'material': steel,
                      'args': {'curvature_tolerant': 'yes'}
                      },
         },

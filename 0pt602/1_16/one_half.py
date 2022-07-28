@@ -4,10 +4,10 @@ import numpy as np
 
 if __name__ == "__main__":
 
-    total_parts = 220 #TODO: adjust total parts
+    total_parts = 16500 #TODO: adjust total parts
     num_insertions = 1
     parts_per_insert = total_parts//num_insertions
-    dp_in = 1/4
+    dp_in = 1/16
     # Create a dictionary of physical parameters
     params = {
 
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     for i in range(num_insertions):
         # insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, 12.2e-3, 45e-3, 85e-3),
         #                     args={'orientation': 'random'})
-        insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, 5.5, 15, 24),
+        insert = sim.insert(species=1, value=parts_per_insert, region=('cylinder', 'z', 0, 0, 5, 14.125, 24),
                             args={'orientation': 'random'})
 
 
