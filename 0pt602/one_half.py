@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     DP_N_dict = {'1/4':220,'1/8':2200,'1_16':16500,'3_16':600,'7_16':50}
 
-    dp_str = str(args[1]).strip()
+    dp_str = str(args[0]).strip()
     total_parts = DP_N_dict[dp_str]
     num_insertions = 1
     parts_per_insert = total_parts // num_insertions
