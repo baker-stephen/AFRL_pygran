@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     dp_str = str(args[0]).strip()
     total_parts = DP_N_dict[dp_str]
-    num_insertions = 1
+    num_insertions = 5
     parts_per_insert = total_parts // num_insertions
     dp_frac = [float(x) for x in dp_str.split('/')]
     dp_in = dp_frac[0]/dp_frac[1]
@@ -91,7 +91,7 @@ if __name__ == "__main__":
 
 
         # Run insertion stage
-        sim.run(params['stages']['insertion']*2, params['dt'])
+        sim.run(params['stages']['insertion']*2/num_insertions, params['dt'])
         sim.remove(insert)
 
 
