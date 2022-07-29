@@ -17,7 +17,7 @@ if __name__ == "__main__":
         positions = []
         if step%100000==0:
             print("step: ",step)
-        with open('/traj/particles'+str(step)+'.vtk', 'r') as read:
+        with open('21-38-19_28-7-2022/traj/particles'+str(step)+'.vtk', 'r') as read:
 
             this_atom_count = 0
             for i in range(9):
