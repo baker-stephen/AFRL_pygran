@@ -61,7 +61,7 @@ if __name__ == "__main__":
                 ),
 
         # Stage runs [optional]
-        'stages': {'insertion': 2.3e6},
+        'stages': {'insertion': 2.3e6/num_insertions},
 
         # Define mesh for rotating mesh (tumbler)
         # Scale since stl is in inches
@@ -91,39 +91,39 @@ if __name__ == "__main__":
 
 
         # Run insertion stage
-        sim.run(params['stages']['insertion']*2/num_insertions, params['dt'])
+        sim.run(params['stages']['insertion']*2, params['dt'])
         sim.remove(insert)
 
 
-    #Setup shaking:
-    freq = 10*2*np.pi
-    nTaps = 30
-    period = 1/freq
-    nSteps = period / params['dt']
-    ampz = .022
-    ampxy = .017
+        #Setup shaking:
+        freq = 10*2*np.pi
+        nTaps = 30
+        period = 1/freq
+        nSteps = period / params['dt']
+        ampz = .022
+        ampxy = .017
 
-    for i in range(nTaps//2):
-        #vibrate x
-        mm = sim.moveMesh('pipe', viblin=(
-            'axis 1 0 0', 'order 1', 'amplitude {}'.format(ampxy), 'phase 0', 'period {}'.format(period)))
-        sim.run(nSteps, params['dt'])
-        sim.remove(mm)
-        #vibrate y
-        mm = sim.moveMesh('pipe', viblin=(
-            'axis 0 1 0', 'order 1', 'amplitude {}'.format(ampxy), 'phase 0', 'period {}'.format(period)))
-        sim.run(nSteps, params['dt'])
-        sim.remove(mm)
+        for i in range(nTaps//2):
+            #vibrate x
+            mm = sim.moveMesh('pipe', viblin=(
+                'axis 1 0 0', 'order 1', 'amplitude {}'.format(ampxy), 'phase 0', 'period {}'.format(period)))
+            sim.run(nSteps, params['dt'])
+            sim.remove(mm)
+            #vibrate y
+            mm = sim.moveMesh('pipe', viblin=(
+                'axis 0 1 0', 'order 1', 'amplitude {}'.format(ampxy), 'phase 0', 'period {}'.format(period)))
+            sim.run(nSteps, params['dt'])
+            sim.remove(mm)
 
-    sim.run(params['stages']['insertion']/2, params['dt'])
+        sim.run(params['stages']['insertion']/2, params['dt'])
 
-    for i in range(nTaps):
-        #vibrate z
-        mm = sim.moveMesh('pipe', viblin=(
-            'axis 0 0 1', 'order 1', 'amplitude {}'.format(ampz), 'phase 0', 'period {}'.format(period)))
-        sim.run(nSteps, params['dt'])
-        sim.remove(mm)
+        for i in range(nTaps):
+            #vibrate z
+            mm = sim.moveMesh('pipe', viblin=(
+                'axis 0 0 1', 'order 1', 'amplitude {}'.format(ampz), 'phase 0', 'period {}'.format(period)))
+            sim.run(nSteps, params['dt'])
+            sim.remove(mm)
 
-    #let settle
+        #let settle
 
-    sim.run(params['stages']['insertion'], params['dt'])
+        sim.run(params['stages']['insertion'], params['dt'])
