@@ -12,7 +12,7 @@ if __name__ == "__main__":
     if len(args) != 1:
         raise Exception("Please specify only DP")
 
-    DP_N_dict = {'1/4':220,'1/8':2200,'1_16':16500,'3_16':600,'7_16':50}
+    DP_N_dict = {'1/4':220,'1/8':2200,'1/16':16500,'3/16':600,'7/16':50}
 
     dp_str = str(args[0]).strip()
     total_parts = DP_N_dict[dp_str]
