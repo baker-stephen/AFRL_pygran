@@ -9,16 +9,17 @@ if __name__ == "__main__":
 
     args = sys.argv[1:]
     print('args:', args)
-    if len(args) != 2:
-        raise Exception("Please specify both and only N atoms and DP")
+    if len(args) != 1:
+        raise Exception("Please specify only DP")
 
-    total_parts = int(args[0])
+    DP_N_dict = {'1/4':220,'1/8':2200,'1_16':16500,'3_16':600,'7_16':50}
+
+    dp_str = str(args[1]).strip()
+    total_parts = DP_N_dict[dp_str]
     num_insertions = 1
     parts_per_insert = total_parts // num_insertions
-    dp_str = str(args[1]).strip()
     dp_frac = [float(x) for x in dp_str.split('/')]
     dp_in = dp_frac[0]/dp_frac[1]
-
     print('Running 0.602" ID with atom count '+str(total_parts)+', and '+str(dp_in)+'" DP.\n')
     time = dt.now()
     # Create a dictionary of physical parameters
@@ -67,7 +68,7 @@ if __name__ == "__main__":
         # Used meshlab to reduce mesh count by .9, still needed curvature tolerance
         # TODO: define PVC material
         'mesh': {
-            'pipe': {'file': '../../mesh/half_pg_taller_blended_funnel_reduced.stl', 'mtype': 'mesh/surface/stress', 'material': steel,
+            'pipe': {'file': '../mesh/half_pg_taller_blended_funnel_reduced.stl', 'mtype': 'mesh/surface/stress', 'material': steel,
                      'args': {'curvature_tolerant': 'yes'}
                      },
         },
