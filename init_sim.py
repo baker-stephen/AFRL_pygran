@@ -3,6 +3,7 @@ import sys
 from datetime import datetime as dt
 
 import run_sim
+import convert_to_csvs
 
 import os
 
@@ -27,13 +28,17 @@ class PD:
               '1.59': 'three_half_in_pg_reduced_smooth.stl'}
     # The shape and dimension of the group of inserted particles.
     # Format: (shape, axial direction, x position of center axis, y position of center axis, radius, z minimum, z max)
+    # Be sure to give a bit of room between the mesh walls and this cylinder.
     inserts = {'0.26': ('cylinder', 'z', 0, 0, .4, 2, 3),
                '0.602': ('cylinder', 'z', 0, 0, 5.5, 15, 20),
                '1.029': ('cylinder', 'z', 0, 0, 3.8, 9, 13.5),
                '1.59': ('cylinder', 'z', 0, 0, 3, 12, 15)}
     # The amplitude of the shaking in the z direction.
+    # Not an exact science, generally want enough shaking so there's a good amount of movement,
+    # but not so much that the particles violently fly upward.
     ampzs = {'0.26': 0.02, '0.602': 0.022, '1.029': 0.025, '1.59': 0.025}
     # The amplitude of the shaking in the x and y directions.
+    # Same applies here.
     ampxys = {'0.26': 0.015, '0.602': 0.017, '1.029': 0.02, '1.59': 0.02}
 
     def __init__(self, ID: str, DP: str, num_inserts=1):
@@ -47,7 +52,7 @@ class PD:
         # Number of insertion phases to run.
         # Increasing this number greatly increases the runtime, but can yield more optimal packing.
         self.num_inserts = num_inserts
-
+        self.out_dir = "not_created"
 
     def length(self) -> float:
         return self.lens[self.ID_str]
@@ -73,15 +78,19 @@ class PD:
         where '.' are replaced with 'pt', and fractions (or '/') are replaced with '_'
         :return: A time-stamped directory at which the simulation outputs are saved
         """
+
+        #If the output directory has already been created, simply return that
+        if self.out_dir != "not_created":
+            return self.out_dir
         out_dir = 'outputs/'
         out_dir += self.ID_str.replace('.', 'pt') + '/'
         out_dir += self.DP_str.replace('.', 'pt').replace('/', '_') + '/'
         #Create this directory if it does not exist
         try:
             os.makedirs(out_dir, exist_ok=True)
-            print("Directory '%s' created successfully" % out_dir)
+            print("Directory '%s' created successfully\n" % out_dir)
         except OSError as error:
-            print("Directory '%s' can not be created. Error: %s" % (out_dir, str(error)))
+            print("Directory '%s' can not be created. Error: %s\n" % (out_dir, str(error)))
         time = dt.now()
         out_dir += 'sim_out_{}:{}:{}_{}-{}-{}'.format(
             time.hour,
@@ -91,6 +100,7 @@ class PD:
             time.month,
             time.year,
         )
+        self.out_dir = out_dir
         return out_dir
 
     def porosity_Guo(self) -> float:
@@ -162,8 +172,14 @@ class PD:
         vol_to_fill = (np.pi * (self.ID / 2) ** 2 * self.length()) * (1 - porosity)
         vol_sphere = (4 / 3) * np.pi * (self.DP / 2) ** 3
         N_spheres = vol_to_fill / vol_sphere
-        print("predicted: ", N_spheres)
         return int(N_spheres * (1 + buffer))
+
+    def final_step(self) -> int:
+        #Total number of steps
+        settle_steps = 2.3e6 / params.num_inserts
+        shake_steps = (1 / 20 * np.pi) / 2.5e-7
+
+        return int((3.5 * settle_steps + 60 * shake_steps) * params.num_inserts)
 
 
 if __name__ == "__main__":
@@ -172,14 +188,28 @@ if __name__ == "__main__":
     args = sys.argv[1:]
     print('args:', args)
 
-    if len(args) != 2:
-        raise Exception("Please specify both and only ID and DP_str")
+    if len(args) != 2 or 3:
+        raise Exception("Please specify both ID and DP")
 
-    #Define the parameters of the simulation
-    params = PD(str(args[0]).strip(),str(args[1]).strip())
+    # Define the parameters of the simulation
+    if len(args) == 3:
+        num_insertions = int(str(args[2]).strip())
+        params = PD(str(args[0]).strip(), str(args[1]).strip(), num_inserts=num_insertions)
+    else:
+        params = PD(str(args[0]).strip(),str(args[1]).strip())
 
     #Run the simulation
     run_sim.go(params)
+
+    print("\n\nSimulation Complete!\n\n")
+
+    #Convert the output to Paraview-compatible and readable csvs
+    convert_to_csvs.go(params.N_spheres(),params.final_step(),params.out_dir) #TODO: test new csvs method
+
+    print("\nAll Pygran steps complete")
+
+
+
 
 
 

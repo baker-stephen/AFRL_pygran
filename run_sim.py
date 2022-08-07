@@ -8,7 +8,7 @@ from init_sim import PD
 def go(sim_params: PD):
     parts_per_insert = sim_params.N_spheres() // sim_params.num_inserts
     print('Running ' + sim_params.ID_str + '" ID with atom count ' + str(
-        sim_params.N_spheres()) + ', and ' + sim_params.DP_str + '" DP_str.\n')
+        sim_params.N_spheres()) + ', and ' + sim_params.DP_str + '" DP.\n')
 
     # Create a dictionary of physical parameters
     params = {
@@ -32,7 +32,7 @@ def go(sim_params: PD):
         'gravity': (385.827, 0, 0, -1),
 
         # Setup I/O
-        'traj': {'pfile': 'particles*.vtk', 'mfile': 'pipe*.vtk', 'freq': 10000},
+        'traj': {'pfile': 'particles*.vtk', 'mfile': 'pipe*.vtk', 'freq': 50000},
 
         'output': sim_params.output_dir(),
 
