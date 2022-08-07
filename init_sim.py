@@ -4,7 +4,7 @@ from datetime import datetime as dt
 
 import run_sim
 
-# import os
+import os
 
 
 class PD:
@@ -73,15 +73,15 @@ class PD:
         where '.' are replaced with 'pt', and fractions (or '/') are replaced with '_'
         :return: A time-stamped directory at which the simulation outputs are saved
         """
-        # TODO: make a directory if one doesn't already exist, actually do we need to? Let's test
         out_dir = 'outputs/'
         out_dir += self.ID_str.replace('.', 'pt') + '/'
         out_dir += self.DP_str.replace('.', 'pt').replace('/', '_') + '/'
-        # try:
-        #     os.makedirs(out_dir, exist_ok=True)
-        #     print("Directory '%s' created successfully" % out_dir)
-        # except OSError as error:
-        #     print("Directory '%s' can not be created" % out_dir)
+        #Create this directory if it does not exist
+        try:
+            os.makedirs(out_dir, exist_ok=True)
+            print("Directory '%s' created successfully" % out_dir)
+        except OSError as error:
+            print("Directory '%s' can not be created. Error: %s" % (out_dir, str(error)))
         time = dt.now()
         out_dir += 'sim_out_{}:{}:{}_{}-{}-{}'.format(
             time.hour,
