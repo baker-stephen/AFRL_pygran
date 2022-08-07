@@ -83,7 +83,7 @@ class PD:
         # except OSError as error:
         #     print("Directory '%s' can not be created" % out_dir)
         time = dt.now()
-        out_dir += '/{}-{}-{}_{}-{}-{}'.format(
+        out_dir += '/sim_out_{}-{}-{}_{}-{}-{}'.format(
             time.hour,
             time.minute,
             time.second,
