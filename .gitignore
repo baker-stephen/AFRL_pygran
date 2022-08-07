@@ -1,1 +1,2 @@
-/outputs/*/*/sim_out*
+**/sim_out*
+**/out-SpringDashpot*
