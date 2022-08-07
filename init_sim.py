@@ -188,7 +188,7 @@ if __name__ == "__main__":
     args = sys.argv[1:]
     print('args:', args)
 
-    if len(args) != 2 or 3:
+    if len(args) != 2 and len(args) != 3:
         raise Exception("Please specify both ID and DP")
 
     # Define the parameters of the simulation
