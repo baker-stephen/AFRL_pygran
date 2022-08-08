@@ -2,7 +2,7 @@ import numpy as np
 import sys
 from datetime import datetime as dt
 
-#import run_sim
+import run_sim
 import convert_to_csvs
 
 import os
@@ -199,7 +199,7 @@ if __name__ == "__main__":
         params = PD(str(args[0]).strip(),str(args[1]).strip())
 
     #Run the simulation
-    #run_sim.go(params)
+    run_sim.go(params)
 
     print("\n\nSimulation Complete!\n\n")
 
