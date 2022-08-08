@@ -95,3 +95,4 @@ def go(sim_params: PD):
         # Let simulation settle before next insertion
 
         sim.run(params['stages']['insertion'], params['dt'])
+        parts_per_insert = 0
