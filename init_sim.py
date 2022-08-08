@@ -2,7 +2,7 @@ import numpy as np
 import sys
 from datetime import datetime as dt
 
-import run_sim
+#import run_sim
 import convert_to_csvs
 
 import os
@@ -176,10 +176,10 @@ class PD:
 
     def final_step(self) -> int:
         #Total number of steps
-        settle_steps = 2.3e6 / params.num_inserts
+        settle_steps = 2.3e6 / self.num_inserts
         shake_steps = (1 / 20 * np.pi) / 2.5e-7
 
-        return int((3.5 * settle_steps + 60 * shake_steps) * params.num_inserts)
+        return int((3.5 * settle_steps + 60 * shake_steps) * self.num_inserts)
 
 
 if __name__ == "__main__":
@@ -199,7 +199,7 @@ if __name__ == "__main__":
         params = PD(str(args[0]).strip(),str(args[1]).strip())
 
     #Run the simulation
-    run_sim.go(params)
+    #run_sim.go(params)
 
     print("\n\nSimulation Complete!\n\n")
 
