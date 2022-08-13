@@ -70,7 +70,7 @@ def go(sim_params: PD):
         ampz = sim_params.ampz()
         ampxy = sim_params.ampxy()
 
-        for i in range(nTaps // 2):
+        for j in range(nTaps // 2):
             # vibrate x
             mm = sim.moveMesh('pipe', viblin=(
                 'axis 1 0 0', 'order 1', 'amplitude {}'.format(ampxy), 'phase 0', 'period {}'.format(period)))
@@ -85,7 +85,7 @@ def go(sim_params: PD):
         # Allow for some settling
         sim.run(params['stages']['insertion'] / 2, params['dt'])
 
-        for i in range(nTaps):
+        for k in range(nTaps):
             # vibrate z
             mm = sim.moveMesh('pipe', viblin=(
                 'axis 0 0 1', 'order 1', 'amplitude {}'.format(ampz), 'phase 0', 'period {}'.format(period)))
@@ -95,4 +95,8 @@ def go(sim_params: PD):
         # Let simulation settle before next insertion
 
         sim.run(params['stages']['insertion'], params['dt'])
+        # TODO: for some reason, LIGGGHTS will insert more particles on each insert (increasing by parts_per_insert
+        # TODO cont. : every time). The fix below does not help...
+
         parts_per_insert = 0
+
