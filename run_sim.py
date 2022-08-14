@@ -34,7 +34,7 @@ def go(sim_params: PD):
         # Setup I/O
         'traj': {'pfile': 'particles*.vtk', 'mfile': 'pipe*.vtk', 'freq': 50000},
 
-        'output': sim_params.output_dir(),
+        'output': sim_params.out_dir,
 
         # Stage runs
         'stages': {'insertion': 2.3e6 / sim_params.num_inserts},

@@ -207,6 +207,9 @@ if __name__ == "__main__":
     else:
         params = PD(str(args[0]).strip(),str(args[1]).strip())
 
+    #Initialize the output directory
+    params.output_dir()
+
     #Run the simulation
     run_sim.go(params)
 
