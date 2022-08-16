@@ -1,6 +1,6 @@
 import sys
 
-# import run_sim
+import run_sim
 import convert_to_csvs
 import cy.run_post as rp
 
@@ -28,7 +28,7 @@ if __name__ == "__main__":
     print("out_dir: %s" % params.out_dir)
 
     # Run the simulation
-    # run_sim.go(params)
+    run_sim.go(params)
 
     wrt_dir = params.out_dir[:params.out_dir.rfind('/') + 1]
 
