@@ -25,10 +25,12 @@ if __name__ == "__main__":
     # Initialize the output directory
     params.output_dir()
 
+    params.out_dir = 'outputs/1pt029/15_32/sim_out_9:15:15_16-8-2022'
+
     print("out_dir: %s" % params.out_dir)
 
     # Run the simulation
-    run_sim.go(params)
+    # run_sim.go(params)
 
     wrt_dir = params.out_dir[:params.out_dir.rfind('/') + 1]
 

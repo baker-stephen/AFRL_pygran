@@ -35,6 +35,9 @@ class PD:
     # The amplitude of the shaking in the x and y directions.
     # Same applies here.
     ampxys = {'0.26': 0.015, '0.602': 0.017, '1.029': 0.02, '1.59': 0.02}
+
+    # Post processing parameters-
+
     # The first two values are the minimum and maximum z values where spheres could exist with a valid inner diameter.
     # The second two values are the min and max z values where the spheres have settled into a more ordered state.
     post_zs = {'0.26': [0.15, 1.0, 0.3, 0.95],
