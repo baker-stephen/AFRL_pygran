@@ -34,6 +34,9 @@ def go(params: PD):
         r.readline()
         for line in r:
             xyz = [float(p) for p in line.split(",")]
+            if xyz[2]<0:
+                #This is a placeholder particle for Paraview, not part of the simulation. Exclude it.
+                continue
             positions.append(xyz)
         r.close()
 
