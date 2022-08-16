@@ -25,6 +25,8 @@ if __name__ == "__main__":
     # Initialize the output directory
     params.output_dir()
 
+    print("read/write dir: %s" % params.out_dir)
+
     # Run the simulation
     run_sim.go(params)
 
