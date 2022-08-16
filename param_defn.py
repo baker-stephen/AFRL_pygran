@@ -194,16 +194,16 @@ class PD:
         return int((3.5 * settle_steps + 60 * shake_steps) * self.num_inserts)
 
     def z0(self) -> float:
-        return self.post_zs[self.DP_str][0]
+        return self.post_zs[self.ID_str][0]
 
     def zM(self) -> float:
-        return self.post_zs[self.DP_str][1]
+        return self.post_zs[self.ID_str][1]
 
     def z0_cutoff(self) -> float:
-        return self.post_zs[self.DP_str][2]
+        return self.post_zs[self.ID_str][2]
 
     def zM_cutoff(self) -> float:
-        return self.post_zs[self.DP_str][3]
+        return self.post_zs[self.ID_str][3]
 
     def res(self) -> (int,int,int):
         """
