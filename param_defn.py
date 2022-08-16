@@ -1,5 +1,4 @@
 import numpy as np
-import sys
 from datetime import datetime as dt
 import os
 
