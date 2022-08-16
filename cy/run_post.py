@@ -1,8 +1,8 @@
 import sys
 
-import pdn
-import ultp
-import plotme_sin
+import cy.pdn
+import cy.ultp
+import cy.plotme_sin
 
 sys.path.insert(1,'../')
 
