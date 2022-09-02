@@ -10,6 +10,10 @@ sys.path.append('../')
 from param_defn import PD
 
 def fluent_print(params: list):
+    """
+    :param params: a 1D list of coefficients
+    :return: A string ready for copy-pasting into the Fluent expression input field
+    """
     ret = str(params[0])
     for i in range(1, len(params)):
         if i % 2 != 0:
@@ -19,6 +23,11 @@ def fluent_print(params: list):
     return ret
 
 def sin_cos_list(x,params):
+    """
+    :param x: Radius input
+    :param params: a 1D list of coefficients
+    :return: The curve-fit output at the radius x
+    """
     ret = params[0]
     for i in range(1,len(params)):
         if i % 2 != 0:
@@ -30,8 +39,6 @@ def sin_cos_list(x,params):
 def go(input_params: PD):
 
     wrt_dir = input_params.out_dir
-    z_0 = input_params.z0()
-    z_M = input_params.zM()
     res = input_params.res()
     ID = input_params.ID
 
@@ -39,30 +46,25 @@ def go(input_params: PD):
     print("start")
     start_time = time.time()
     out = open(wrt_dir+'outputs.txt',  'a')
-    # radial = []
     pipe_in_rad = ID / 2
     x_res = res[0]
-    x0 = -pipe_in_rad
-    xM = pipe_in_rad
-    dx = (xM - x0) / (x_res + 1)
     y_res = res[1]
-    y0 = -pipe_in_rad
-    yM = pipe_in_rad
-    dy = (yM - y0) / (y_res + 1)
     z_res = res[2]
-    z0 = z_0
-    zM = z_M
-    dz = (zM - z0) / (z_res + 1)
     r_res = res[3]
     rs = np.linspace(0, pipe_in_rad, r_res+1)
+
+    #Load average porosity as a function of radius
     print("opening avg r arr")
     with open(wrt_dir+'avg_r_' + str(x_res) + '-' + str(y_res) + '-' + str(z_res) + '-' + str(r_res) + '.npy', 'rb') as f:
         radial = np.load(f)
         f.close()
     print("done")
     print("std dev r:",stat.stdev(radial[1:]))
+    # Typically a good idea to ignore the first index, it can be very noisy given the small amount of data in such a
+    # small volume at that small radius.
     out.write("std dev r, after first index: " + str(stat.stdev(radial[1:])) + '\n')
 
+    # Check the r-poros-data plot, may need to edit this value early indices contain noisy data.
     start_ind = 1
     for i,r in enumerate(radial):
         if 0>=r or r>=1:
@@ -75,20 +77,24 @@ def go(input_params: PD):
     print("start radius:",rs[start_ind])
     out.write("start radius: " + str(rs[start_ind]) + '\n')
     for i in range(start_ind):
+        #Set bad porosity values to a constant value
         radial[i]=radial[start_ind]
     fig, ax = plt.subplots()
     ax.set_xlabel("radius (in)")
-    # dp = Dp
     ax.plot(rs, radial,label='data')
+
+    #Perform fitting
 
     ny = len(radial)
     N = 40
     nparams = 2*N + 1
 
+    #Cosine coefficients
     xas = []
     for i in range(1,N+1):
         xas.append(np.cos(2 * np.pi * i * rs))
 
+    #Sine coefficients
     xbs = []
     for i in range(1,N+1):
         xbs.append(np.sin(2 * np.pi * i * rs))
@@ -96,7 +102,7 @@ def go(input_params: PD):
     matr = np.ones((ny, nparams), dtype=float)
     for i in range(1,nparams):
         if i%2!=0:
-            matr[:,i] = xas[i//2]
+            matr[:, i] = xas[i//2]
         else:
             matr[:, i] = xbs[i // 2 - 1]
 
@@ -117,13 +123,15 @@ def go(input_params: PD):
     # plt.show()
 
 
-
+    #Find average porostity by integrating over curve fit
     def f1(x):
         return sin_cos_list(x,results.params)
     fit_sin_cos_integ = quad(f1, 0.0, pipe_in_rad)
     print("fit_one_integ:", fit_sin_cos_integ)
     print("avg poros fit one:", fit_sin_cos_integ[0] / pipe_in_rad)
     out.write("avg poros fit integ: " + str(fit_sin_cos_integ[0] / pipe_in_rad) + '\n')
+
+    #Determine mean and standard deviation of curve fit for comparison
     n = 10000
     r_fits = np.linspace(0,pipe_in_rad,n)
     p_fits = []
@@ -137,6 +145,8 @@ def go(input_params: PD):
     print("--- %s seconds ---" % rt)
     out.write('plotme runtime: ' + str(rt) + '\n')
 
+    #Determine volume-averaged porosity (take into account greater contribution from values at higher radii)
+
     def f1(x):
         return sin_cos_list(x, results.params) * x
 
@@ -148,3 +158,5 @@ def go(input_params: PD):
     out.write("\nvolume averaged porosity: " + str(vol_avg_poros))
     out.close()
     print("Done!")
+
+    #TODO: include weighted std dev here
