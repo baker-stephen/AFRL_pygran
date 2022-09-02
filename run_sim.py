@@ -2,8 +2,9 @@ from pygran import simulation
 from pygran.params import steel, glass
 import numpy as np
 
-from init_sim import PD
+import sys
 
+from param_defn import PD
 
 def go(sim_params: PD):
     parts_per_insert = sim_params.N_spheres() // sim_params.num_inserts
@@ -100,3 +101,24 @@ def go(sim_params: PD):
 
         parts_per_insert = 0
 
+if __name__ == "__main__":
+    # Retrieve command-line arguments. First element is always file name, we can skip that.
+    args = sys.argv[1:]
+    print('args:', args)
+
+    if len(args) != 2 and len(args) != 3:
+        raise Exception("Please specify both ID and DP")
+
+    # Define the parameters of the simulation
+    if len(args) == 3:
+        num_insertions = int(str(args[2]).strip())
+        params = PD(str(args[0]).strip(), str(args[1]).strip(), num_inserts=num_insertions)
+    else:
+        params = PD(str(args[0]).strip(), str(args[1]).strip())
+
+    # Initialize the output directory
+    params.output_dir()
+
+    print("out_dir: %s" % params.out_dir)
+
+    go(params)

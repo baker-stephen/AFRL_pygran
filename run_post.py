@@ -1,6 +1,6 @@
 import sys
 
-import run_sim
+# import run_sim
 import convert_to_csvs
 import cy.run_post as rp
 
