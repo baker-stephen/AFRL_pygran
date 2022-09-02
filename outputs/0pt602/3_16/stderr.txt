@@ -1,0 +1,8 @@
+/home/stbaker/afrl/pygran-post/cyth/plotme_sin.py:129: IntegrationWarning: The occurrence of roundoff error is detected, which prevents 
+  the requested tolerance from being achieved.  The error may be 
+  underestimated.
+  fit_sin_cos_integ = quad(f1, 0.0, pipe_in_rad)
+/home/stbaker/afrl/pygran-post/cyth/plotme_sin.py:150: IntegrationWarning: The occurrence of roundoff error is detected, which prevents 
+  the requested tolerance from being achieved.  The error may be 
+  underestimated.
+  fit_sin_cos_integ = quad(f1, 0.0, float(ID) / 2)
