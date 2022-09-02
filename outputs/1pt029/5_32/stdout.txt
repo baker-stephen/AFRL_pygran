@@ -1,0 +1,8 @@
+write directory: outputs/1pt029/5_32/
+
+
+Simulation Complete!
+
+
+Directory 'outputs/1pt029/5_32/csvs' created successfully
+
