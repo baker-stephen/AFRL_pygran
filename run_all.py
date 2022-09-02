@@ -1,6 +1,6 @@
 import sys
 
-# import run_sim
+import run_sim
 import convert_to_csvs
 import cy.run_post as rp
 
@@ -25,12 +25,7 @@ if __name__ == "__main__":
     # Initialize the output directory
     params.output_dir()
 
-    params.out_dir = 'outputs/1pt029/15_32/sim_out_9:15:15_16-8-2022'
-
-    print("out_dir: %s" % params.out_dir)
-
-    # Run the simulation
-    # run_sim.go(params)
+    # params.out_dir = 'outputs/1pt029/15_32/sim_out_9:15:15_16-8-2022'
 
     wrt_dir = params.out_dir[:params.out_dir.rfind('/') + 1]
 
@@ -39,12 +34,22 @@ if __name__ == "__main__":
     sys.stdout = open(wrt_dir + 'stdout.txt', 'w')
     sys.stderr = open(wrt_dir + 'stderr.txt', 'w')
 
-    print("write directory:", wrt_dir)
+    print("out_dir: %s" % params.out_dir)
+
+    originalOutDir = params.out_dir
+
+    # Run the simulation
+    run_sim.go(params)
 
     print("\n\nSimulation Complete!\n\n")
 
+    print("now out_dir: %s" % params.out_dir)
+
+    print("OG out_dir: %s" % originalOutDir)
+
+
     # Convert the output to Paraview-compatible and readable csvs
-    convert_to_csvs.go(params.N_spheres(), params.final_step(), params.out_dir)  # TODO: test new csvs method
+    convert_to_csvs.go(params.N_spheres(), params.final_step(), originalOutDir)  # TODO: test new csvs method
 
     print("\nAll Pygran steps complete")
 
