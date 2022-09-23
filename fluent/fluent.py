@@ -1,6 +1,3 @@
-import matplotlib.pyplot as plt
-import numpy as np
-
 from dimension import *
 
 def poros_Foumeny(N):
@@ -136,14 +133,14 @@ if __name__ == "__main__":
     D_one_one_half_outside = Length(1.9, Length.inch)
 
     # TODO: Set the sphere (pellet) diameter
-    Dp = Dp_small
+    Dp = Dp_mini
     # TODO: Set the inner diameter
-    D = D_half
+    D = D_one_quarter
     N = float(D / Dp)
     empirical_porosity = poros_Foumeny(N) if poros_Guo(N) == -1 else poros_Guo(N)
     # empirical_porosity = poros_Cheng(N)
     # TODO: Manually enter Pygran fitted volume-averaged porosity from outputs.txt
-    porosity = 0.466470357313992
+    porosity = 0.416128576115776
     # porosity = empirical_porosity
 
     # Calulate mass flow rate from volumetric flow rate of experiment
@@ -197,7 +194,9 @@ if __name__ == "__main__":
     print("B_E: ",B_E)
     C1, C2 = C1C2(A_E, B_E, porosity, Dp)
     print("viscous resistance (C1): ",C1)
+    print(float(C1))
     print("inertial resistance (C2): ",C2)
+    print(float(C2))
     dpdx = cheng_dp(A_E,B_E,porosity,rho,dyn_viscosity,Dp,superficial_velo)
     print("dpdx: ",dpdx)
     print("dpdx: ",dpdx.get_special([Unit(Pressure,Pressure.psi)],warn=False))
@@ -214,7 +213,9 @@ if __name__ == "__main__":
     print("Sato poros:",poros_Sato(N))
     C1_old, C2_old = C1C2_old(A_E, B_E, porosity, Dp)
     print("C1 old: ", C1_old)
+    print(float(C1_old))
     print("C2 old: ", C2_old)
+    print(float(C2_old))
 
 
 
