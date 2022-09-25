@@ -182,17 +182,18 @@ if __name__ == "__main__":
     print("A_E:", "(a1 + (a2*poros/(1-poros))*(N/(N-1))^2)")
     print("B_E:", "(b1*((1-poros)/poros)^(1/3)+b2*(N/(N-1))^2)")
     # Adjusted C1, C2. Use commented lines for original.
-    print("C1:", "A_E * (1 - poros) ^ 2 / (poros ^ 2 * Dp ^ 2))")
-    # print("C1:", "A_E * (1 - poros) ^ 2 / (poros ^ 3 * Dp ^ 2))") # One extra power of porosity in denominator
-    print("C2:", "2*B_E*(1-poros)/(poros*Dp)")
-    # print("C2:", "2*B_E*(1-poros)/(poros**3*Dp)") # Two extra powers of porosity in denominator
+    # Did some testing
+    # print("C1:", "A_E * (1 - poros) ^ 2 / (poros ^ 2 * Dp ^ 2))")
+    print("C1:", "A_E * (1 - poros) ^ 2 / (poros ^ 3 * Dp ^ 2))") # One extra power of porosity in denominator
+    # print("C2:", "2*B_E*(1-poros)/(poros*Dp)")
+    print("C2:", "2*B_E*(1-poros)/(poros**3*Dp)") # Two extra powers of porosity in denominator
 
     print("\n1D estimates for comparison:")
     print("physical velocity:",superficial_velo/porosity)
     A_E, B_E = A_E_B_E(porosity, N, a1, a2, b1, b2, m)
     print("A_E: ",A_E)
     print("B_E: ",B_E)
-    C1, C2 = C1C2(A_E, B_E, porosity, Dp)
+    C1, C2 = C1C2_old(A_E, B_E, porosity, Dp)
     print("viscous resistance (C1): ",C1)
     print(float(C1))
     print("inertial resistance (C2): ",C2)
@@ -211,11 +212,11 @@ if __name__ == "__main__":
     print("Cheng poros:", poros_Cheng(N))
     print("Guo poros:", poros_Guo(N))
     print("Sato poros:",poros_Sato(N))
-    C1_old, C2_old = C1C2_old(A_E, B_E, porosity, Dp)
-    print("C1 old: ", C1_old)
-    print(float(C1_old))
-    print("C2 old: ", C2_old)
-    print(float(C2_old))
+    C1_other, C2_other = C1C2_old(A_E, B_E, porosity, Dp)
+    print("C1 other: ", C1_other)
+    print(float(C1_other))
+    print("C2 other: ", C2_other)
+    print(float(C2_other))
 
 
 
