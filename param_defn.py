@@ -210,4 +210,4 @@ class PD:
         :return: x, y, z, and resolution to make into a 3D grid, and then 1D radial average.
         I have found these values to work best at all ID and DP in my testing.
         """
-        return (800,800,2500,200)
+        return (100,100,305,200)
