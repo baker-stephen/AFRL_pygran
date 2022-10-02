@@ -142,6 +142,10 @@ if __name__ == "__main__":
     # TODO: Manually enter Pygran fitted volume-averaged porosity from outputs.txt
     porosity = 0.416128576115776
     # porosity = empirical_porosity
+    D_H = np.sqrt(8*Dp**2*porosity**3/(9*(1-porosity)**2))
+    print("D_H:",D_H.get_special(units=[Unit(Length,Length.inch)]))
+    A_H_ratio = D_H**2/D**2
+    print("A_H_ratio:",A_H_ratio)
 
     # Calulate mass flow rate from volumetric flow rate of experiment
     rho_h20_exp = Derived(998.23, numerator=[Unit(Mass,Mass.kg)],
@@ -183,8 +187,8 @@ if __name__ == "__main__":
     print("B_E:", "(b1*((1-poros)/poros)^(1/3)+b2*(N/(N-1))^2)")
     # Adjusted C1, C2. Use commented lines for original.
     # Did some testing
-    # print("C1:", "A_E * (1 - poros) ^ 2 / (poros ^ 2 * Dp ^ 2))")
-    print("C1:", "A_E * (1 - poros) ^ 2 / (poros ^ 3 * Dp ^ 2))") # One extra power of porosity in denominator
+    # print("C1:", "A_E * (1 - poros) ^ 2 / (poros ^ 2 * Dp ^ 2)")
+    print("C1:", "A_E * (1 - poros) ^ 2 / (poros ^ 3 * Dp ^ 2)") # One extra power of porosity in denominator
     # print("C2:", "2*B_E*(1-poros)/(poros*Dp)")
     print("C2:", "2*B_E*(1-poros)/(poros**3*Dp)") # Two extra powers of porosity in denominator
 
