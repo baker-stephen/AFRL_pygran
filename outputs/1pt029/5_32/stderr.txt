@@ -1,6 +1,6 @@
 Traceback (most recent call last):
-  File "init_sim.py", line 45, in <module>
-    convert_to_csvs.go(params.N_spheres(), params.final_step(), params.out_dir)  # TODO: test new csvs method
+  File "run_all.py", line 52, in <module>
+    convert_to_csvs.go(params.N_spheres(), params.final_step(), originalOutDir)  # TODO: test new csvs method
   File "/home/stbaker/afrl/AFRL_pygran/convert_to_csvs.py", line 29, in go
     with open(source_dir + '/traj/particles' + str(step) + '.vtk', 'r') as read:
-FileNotFoundError: [Errno 2] No such file or directory: 'outputs/1pt029/5_32/sim_out_9:10:2_16-8-2022/traj/particles50000.vtk'
+FileNotFoundError: [Errno 2] No such file or directory: 'outputs/1pt029/5_32/sim_out_13:32:27_2-9-2022/traj/particles50000.vtk'

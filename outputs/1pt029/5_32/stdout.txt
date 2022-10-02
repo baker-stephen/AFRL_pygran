@@ -1,8 +1,12 @@
-write directory: outputs/1pt029/5_32/
+out_dir: outputs/1pt029/5_32/sim_out_13:32:27_2-9-2022
+Running 1.029" ID with atom count 1360, and 5/32" DP.
+
 
 
 Simulation Complete!
 
 
+now out_dir: outputs/1pt029/5_32/sim_out_13:32:27_2-9-2022
+OG out_dir: outputs/1pt029/5_32/sim_out_13:32:27_2-9-2022
 Directory 'outputs/1pt029/5_32/csvs' created successfully
 
