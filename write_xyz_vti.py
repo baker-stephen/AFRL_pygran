@@ -18,7 +18,7 @@ if __name__ == "__main__":
     dz = (zM - z0) / (z_res + 1)
     loaded = []
     print("opening filled arr")
-    with open('outputs/1pt59/1_4/filled_array_' + str(x_res) + '-' + str(y_res) + '-' + str(z_res) + '.npy', 'rb') as f:
+    with open('outputs/1pt59filled_array_' + str(x_res) + '-' + str(y_res) + '-' + str(z_res) + '.npy', 'rb') as f:
         loaded = np.load(f)
         f.close()
 
