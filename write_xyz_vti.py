@@ -4,15 +4,15 @@ if __name__ == "__main__":
 
     pipe_in_rad = 1.59 / 2
 
-    x_res = 800
+    x_res = 100
     x0 = -pipe_in_rad
     xM = pipe_in_rad
     dx = (xM - x0) / (x_res + 1)
-    y_res = 800
+    y_res = 100
     y0 = -pipe_in_rad
     yM = pipe_in_rad
     dy = (yM - y0) / (y_res + 1)
-    z_res = 2500
+    z_res = 305
     z0 = 0.0
     zM = 9.5
     dz = (zM - z0) / (z_res + 1)
