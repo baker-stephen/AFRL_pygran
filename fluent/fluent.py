@@ -133,15 +133,16 @@ if __name__ == "__main__":
     D_one_one_half_outside = Length(1.9, Length.inch)
 
     # TODO: Set the sphere (pellet) diameter
-    Dp = Dp_mini
+    Dp = Dp_large
     # TODO: Set the inner diameter
-    D = D_one_quarter
+    D = D_one
     N = float(D / Dp)
+    print("N:",N)
     empirical_porosity = poros_Foumeny(N) if poros_Guo(N) == -1 else poros_Guo(N)
     # empirical_porosity = poros_Cheng(N)
     # TODO: Manually enter Pygran fitted volume-averaged porosity from outputs.txt
-    porosity = 0.416128576115776
-    # porosity = empirical_porosity
+    # porosity = 0.416128576115776
+    porosity = empirical_porosity
     D_H = np.sqrt(8*Dp**2*porosity**3/(9*(1-porosity)**2))
     print("D_H:",D_H.get_special(units=[Unit(Length,Length.inch)]))
     A_H_ratio = D_H**2/D**2
@@ -221,6 +222,19 @@ if __name__ == "__main__":
     print(float(C1_other))
     print("C2 other: ", C2_other)
     print(float(C2_other))
+
+    sdpdx = Derived(20.523858267716538,
+                    numerator=[Unit(Pressure,Pressure.Pa)],
+                    denominator=[Unit(Length,Length.m)])
+    RHS = sdpdx/dyn_viscosity
+    print("RHS:",RHS)
+    print(float(RHS))
+    mat_Q = mdot/rho
+    print("mat_Q:",mat_Q)
+    tau = 1.54361554933
+    dhx = Dp*0.408248290464
+    Recivan = rho*tau*superficial_velo*dhx/(porosity*dyn_viscosity)
+    print("REcivan:",Recivan)
 
 
 
