@@ -133,9 +133,9 @@ if __name__ == "__main__":
     D_one_one_half_outside = Length(1.9, Length.inch)
 
     # TODO: Set the sphere (pellet) diameter
-    Dp = Dp_large
-    # TODO: Set the inner diameter
-    D = D_one
+    Dp = Length(2.8,Length.mm)
+    # TODO: Set he inner diameter
+    D = D_half
     N = float(D / Dp)
     print("N:",N)
     empirical_porosity = poros_Foumeny(N) if poros_Guo(N) == -1 else poros_Guo(N)
