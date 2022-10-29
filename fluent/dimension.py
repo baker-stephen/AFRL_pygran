@@ -637,8 +637,7 @@ class Mass(Dimension):
         else:
             self.invalid = True
             raise ValueError("Invalid minor unit in Mass.")
-        self.numerator = [Unit(self.__class__, self.default)]
-        self.denominator = []
+        self.units = {Unit(self.__class__, self.default):1}
         # print("init self val: ",self.value)
         # super().__init__(self.value, numerator=[Unit(self.__class__, self.default)])
 
@@ -883,9 +882,7 @@ class Pressure(Derived):
         else:
             self.invalid = True
             raise ValueError("Invalid minor unit in Pressure.")
-        super().__init__(self.value,
-                         numerator=[Unit(Mass, Mass.kg),],
-                         denominator=[Unit(Length, Length.m),Unit(Time,Time.s),Unit(Time,Time.s)])
+        super().__init__(self.value, units={Unit(Mass, Mass.kg):1,Unit(Length, Length.m):-1,Unit(Time,Time.s):-2})
 
     def __str__(self):
         if self.invalid:
@@ -975,8 +972,7 @@ class Temperature(Dimension):
         else:
             self.invalid = True
             raise ValueError("Invalid minor unit in Temperature.")
-        self.numerator = [Unit(self.__class__, self.default)]
-        self.denominator = []
+        self.units = {Unit(self.__class__, self.default):1}
         # super().__init__(self.value, numerator=[Unit(Temperature, Temperature.K),])
 
     # def __str__(self):
