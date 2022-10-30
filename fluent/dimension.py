@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from collections import Counter
 import numpy as np
 
+#TODO: derived units simplification in init
 #TODO: convert into derived denominator
 #TODO: make all fundamental constants dimensional
 #TODO: frequency (Hz)
@@ -40,69 +41,62 @@ class Dimension(ABC):
         return True
 
     def __str__(self):
+        # print("called str. self val:",self.value,"units:",self.units)
+
         ret_str = "{:e} "
-        ret_str += self.unit_to_str(self.numerator,self.denominator)
+        ret_str += self.unit_to_str(self.units)
         return ret_str.format(self.value)
 
     def __repr__(self):
         return self.__str__()
 
-    def unit_to_str(self, numerator: list, denominator: list):
+    def unit_to_str(self, units: dict):
         ret_str = ""
-        numCtr = Counter(numerator)
-        denCtr = Counter(denominator)
-
-        for key in numCtr:
-            if numCtr[key] > 1:
-                ret_str += key.minor+"^"+str(numCtr[key])+"*"
-            else:
+        # if not self.__class__.mro().__contains__(Derived):
+        # print("called uts. self val:", self.value)
+        # print("unit keys are:",units.keys())
+        for key in units:
+            if units[key] > 0 and units[key] != 1:
+                ret_str += key.minor+"^"+str(units[key])+"*"
+            elif units[key] == 1:
                 ret_str += key.minor + "*"
-        if len(self.numerator) > 0:
+        if len(ret_str)>0:
             ret_str = ret_str[0:len(ret_str) - 1]
-        if len(self.denominator) > 0:
-            ret_str += "/"
-            for key in denCtr:
-                if denCtr[key] > 1:
-                    ret_str += key.minor+"^"+str(denCtr[key])+"*"
-                else:
-                    ret_str += key.minor + "*"
-            ret_str = ret_str[0:len(ret_str) - 1]
+        ret_str += "/"
+        for key in units:
+            if units[key] < 0 and units[key] != -1:
+                ret_str += key.minor+"^"+str(-units[key])+"*"
+            elif units[key] == -1:
+                ret_str += key.minor + "*"
+        ret_str = ret_str[0:len(ret_str) - 1]
+
         return ret_str
 
     def __mul__(self, other) -> 'Derived':
-        newNum = self.numerator.copy()
-        newDenom = self.denominator.copy()
+        units = self.units.copy()
 
         if not other.__class__.mro().__contains__(Dimension):
             if other.__class__ is int or other.__class__ is float or other.__class__ is np.float64:
                 other = float(other)
-                return Derived(self.value*other, numerator=newNum, denominator=newDenom)
+                return Derived(self.value*other, units=units)
             else:
                 print("trying to multiply other: ",other.__class__)
                 raise TypeError("Can only multiply by float, int, and other Dimension.")
 
-        otherNumCopy = other.numerator.copy()
-        otherDenomCopy = other.denominator.copy()
+        otherUnits = other.units.copy()
+        # otherDenomCopy = other.denominator.copy()
 
-        i = 0
-        while i < len(newNum):
-            if otherDenomCopy.__contains__(newNum[i]):
-                otherDenomCopy.remove(newNum[i])
-                newNum.remove(newNum[i])
+        for otherUnit in otherUnits.keys():
+            if units.keys().__contains__(otherUnit):
+                newUnitPow = units[otherUnit]+otherUnits[otherUnit]
+                if newUnitPow == 0:
+                    units.pop(otherUnit)
+                else:
+                    units[otherUnit] = newUnitPow
             else:
-                i+=1
+                units[otherUnit] = otherUnits[otherUnit]
 
-        i = 0
-        while i < len(newDenom):
-            if otherNumCopy.__contains__(newDenom[i]):
-                otherNumCopy.remove(newDenom[i])
-                newDenom.remove(newDenom[i])
-            else:
-                i += 1
-
-        newNum.extend(otherNumCopy)
-        newDenom.extend(otherDenomCopy)
-        return Derived(self.value*other.value, numerator=newNum, denominator=newDenom)
+        return Derived(self.value*other.value, units=units)
 
     def __float__(self) -> float:
         #TODO: check if dimensional and warn
@@ -114,71 +108,51 @@ class Dimension(ABC):
                     self.is_dimless():
                 return Derived(self.value+other)
             raise Exception("Must both be of type dimensional or have no dimension to add.")
-        numCpy = self.numerator.copy()
-        denCpy = self.denominator.copy()
-        otherNum = other.numerator.copy()
-        otherDenom = other.denominator.copy()
-        if Counter(numCpy) != Counter(otherNum) or Counter(denCpy) != Counter(otherDenom):
+        units = self.units.copy()
+        otherUnits = other.units.copy()
+        if units != otherUnits:
             raise Exception("Both values must have same dimension to add.")
 
-        return Derived(self.value + other.value,numerator=numCpy,denominator=denCpy)
+        return Derived(self.value + other.value, units=units)
 
     def __pow__(self, power, modulo=None) -> 'Derived':
 
         if modulo is not None:
             raise ValueError("Modulo of dimensional quantities not supported.")
 
+        units = self.units.copy()
 
-        numCtr = Counter(self.numerator)
-        denCtr = Counter(self.denominator)
+        for key in units:
+            units[key]*=power
 
-        newNum = []
-        newDen = []
-
-        for key in numCtr:
-            count = numCtr[key]
-            count *= power
-            if abs(count - int(count)) > 1e-5:
-                raise ValueError("count for " + str(key) + " is " + str(count)+"\n"
-                                 + "Non-integer powers of dimensions not supported.")
-            count = int(count)
-            for i in range(count):
-                newNum.append(key)
-
-        for key in denCtr:
-            count = denCtr[key]
-            count *= power
-            if abs(count - int(count)) > 1e-5:
-                raise ValueError("count for " + str(key) + " is " + str(count) + "\n"
-                                 + "Non-integer powers of dimensions not supported.")
-            count = int(count)
-            for i in range(count):
-                newDen.append(key)
-
-        return Derived(pow(self.value, power), numerator=newNum, denominator=newDen)
+        return Derived(pow(self.value, power), units=units)
 
     def __truediv__(self, other) -> 'Derived':
-        newNum = self.numerator.copy()
-        newDenom = self.denominator.copy()
+        units = self.units
 
         if not other.__class__.mro().__contains__(Dimension):
             if other.__class__ is int or other.__class__ is float or other.__class__ is np.float64:
                 other = float(other)
-                return Derived(self.value / other, numerator=newNum, denominator=newDenom)
+                return Derived(self.value/other, units=units)
             else:
-                raise TypeError("Can only divide float, int, other Dimension.")
+                print("trying to divide other: ",other.__class__)
+                raise TypeError("Can only multiply by float, int, and other Dimension.")
 
-        otherNumCopy = other.numerator.copy()
-        otherDenomCopy = other.denominator.copy()
-        inverse = Derived(1/other.value, numerator=otherDenomCopy, denominator=otherNumCopy)
+
+        otherUnits = other.units.copy()
+
+        for otherUnit in otherUnits.keys():
+            otherUnits[otherUnit] *= -1
+
+        inverse = Derived(1/other.value, units=otherUnits)
         return self * inverse
 
     def __sub__(self, other) -> 'Derived':
         if not other.__class__.mro().__contains__(Dimension):
             if (other.__class__ is float or other.__class__ is int) and \
-                    (self.numerator is None or len(self.numerator) == 0) and \
-                    (self.denominator is None or len(self.denominator) == 0):
-                return Derived(self.value + other)
+                    (self.units is None or len(self.units) == 0):
+                #TODO: test + or - here...
+                return Derived(self.value - other)
             raise Exception("Must both be of type dimensional or have no dimension to subtract.")
 
         return self + (-1*other)
@@ -188,17 +162,19 @@ class Dimension(ABC):
 
     def __rtruediv__(self, other) -> 'Derived':
 
-        newNum = self.numerator.copy()
-        newDenom = self.denominator.copy()
+        return other * self**(-1)
 
-        if not other.__class__.mro().__contains__(Dimension):
-            if other.__class__ is int or other.__class__ is float:
-                return Derived(other / self.value, numerator=newDenom, denominator=newNum)
-            else:
-                raise TypeError("Can only divide float, int, other Dimension.")
-
-        inverse = Derived(1 / self.value, numerator=newDenom, denominator=newNum)
-        return other * inverse
+        # newNum = self.numerator.copy()
+        # newDenom = self.denominator.copy()
+        #
+        # if not other.__class__.mro().__contains__(Dimension):
+        #     if other.__class__ is int or other.__class__ is float:
+        #         return Derived(other / self.value, numerator=newDenom, denominator=newNum)
+        #     else:
+        #         raise TypeError("Can only divide float, int, other Dimension.")
+        #
+        # inverse = Derived(1 / self.value, numerator=newDenom, denominator=newNum)
+        # return other * inverse
 
     def __neg__(self) -> 'Derived':
         return -1*self
@@ -210,7 +186,7 @@ class Dimension(ABC):
         return -self + other
 
     def __copy__(self) -> 'Derived':
-        return Derived(self.value,numerator=self.numerator,denominator=self.denominator)
+        return Derived(self.value,units=self.units)
 
     def __abs__(self) -> 'Derived':
         return Derived(abs(self.value),numerator=self.numerator,denominator=self.denominator)
@@ -242,6 +218,9 @@ class Dimension(ABC):
                 return self.get_default() == other.get_default()
         return None
 
+    def __hash__(self):
+        return hash((self.value,str(self.units.keys()),str(self.units.values())))
+
     def is_dimless(self) -> bool:
         return False
 
@@ -255,6 +234,11 @@ class Dimension(ABC):
         if not self.is_dimless():
             raise Exception("Must be dimensionless to take cosine.")
         return float(np.cos(self.value))
+
+    def arccos(self) -> 'Angle':
+        if not self.is_dimless():
+            raise Exception("Must be dimensionless to take inverse cosine.")
+        return Angle(np.arccos(self.value),Angle.rad)
 
     def tan(self) -> float:
         if not self.is_dimless():
@@ -274,6 +258,9 @@ class Dimension(ABC):
             raise Exception("Must be dimensionless to take logarithm.")
         return float(np.log(self.value))
 
+    def default_units(self) -> dict:
+        return {Unit(self.__class__, self.default):1}
+
 
 class Unit:
     def __init__(self, major: type, minor: str):
@@ -282,6 +269,9 @@ class Unit:
 
     def __str__(self):
         return self.major.__name__ + " " + self.minor
+
+    def __repr__(self):
+        return self.__str__()
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.major is other.major and self.minor == other.minor
@@ -292,105 +282,236 @@ class Unit:
 
 class Derived(Dimension):
 
-    def __init__(self, value: float, numerator=None, denominator=None):
-        if denominator is None:
-            denominator = []
-        if numerator is None:
-            numerator = []
+    def __init__(self, value: float, units=None):#numerator=None, denominator=None):
+        if units is None:
+            units = {}
+        # if units is None:
+        #     units = {}
+        # if numerator is None:
+        #     numerator = {}
 
-        if numerator.__class__ is dict:
-            nTemp = []
-            for key in numerator.keys():
-                for i in range(numerator[key]):
-                    nTemp.insert(len(nTemp),key)
-            numerator = nTemp
-        if denominator.__class__ is dict:
-            dTemp = []
-            for key in denominator.keys():
-                for i in range(denominator[key]):
-                    dTemp.insert(len(dTemp),key)
-            denominator = dTemp
-        newNum = []
-        newDenom = []
+        if units.__class__ is dict:
+            self.units = units.copy()
+            # nTemp = []
+            # for key in numerator.keys():
+            #     for i in range(numerator[key]):
+            #         nTemp.insert(len(nTemp),key)
+            # numerator = nTemp
+        else:
+            raise Exception("Specify units as dict")
+        # if denominator.__class__ is dict:
+        #     self.denominator = denominator.copy()
+            # dTemp = []
+            # for key in denominator.keys():
+            #     for i in range(denominator[key]):
+            #         dTemp.insert(len(dTemp),key)
+            # denominator = dTemp
+        newUnits = {}
+        # newDenom = {}
 
-        unit:Unit
-        for unit in numerator:
-            if not unit.major.mro().__contains__(Derived) and unit.minor == unit.major.default:
-                newNum.insert(len(newNum),unit)
-                continue
-            #weirdness here for sub derived units
-            dim = unit.major(value,unit.minor)
-            value = dim.get_default()
-            for u in dim.numerator:
-                if newDenom.__contains__(u):
-                    newDenom.remove(u)
+        unit_key:Unit
+        for unit_key in units.keys():
+
+            base_dim = unit_key.major(1,unit_key.minor)
+            conversion = base_dim.get_default()
+            value *= conversion**units[unit_key]
+            if not unit_key.major.mro().__contains__(Derived):
+                newUnitKey = Unit(unit_key.major, unit_key.major.default)
+                if newUnits.keys().__contains__(newUnitKey):
+                    newUnits[newUnitKey] += units[unit_key]
                 else:
-                    newNum.insert(len(newNum), Unit(u.major, u.major.default))
-            for u in dim.denominator:
-                if newNum.__contains__(u):
-                    newNum.remove(u)
-                else:
-                    newDenom.insert(len(newNum), Unit(u.major, u.major.default))
-        for unit in denominator:
-            if not unit.major.mro().__contains__(Derived) and unit.minor == unit.major.default:
-                if newNum.__contains__(unit):
-                    newNum.remove(unit)
-                else:
-                    newDenom.insert(len(newDenom),unit)
-                continue
-            dim = unit.major(1/value, unit.minor)
-            value = 1/dim.get_default()
-            for u in dim.numerator:
-                if newNum.__contains__(u):
-                    newNum.remove(u)
-                else:
-                    newDenom.insert(len(newNum), Unit(u.major, u.major.default))
-            for u in dim.denominator:
-                if newDenom.__contains__(u):
-                    newDenom.remove(u)
-                else:
-                    newNum.insert(len(newNum), Unit(u.major, u.major.default))
+                    newUnits[newUnitKey] = units[unit_key]
+            else:
+                for sub_unit_key in base_dim.units.keys():
+                    if newUnits.keys().__contains__(sub_unit_key):
+
+                        newUnits[sub_unit_key] += base_dim.units[sub_unit_key]*units[unit_key]
+                    else:
+                        newUnits[sub_unit_key] = base_dim.units[sub_unit_key]*units[unit_key]
+                        # print("made new unit with power ", newUnits[sub_unit_key])
+                    # newUnits[unit_key] = units[unit_key]
+                    # newNum.insert(len(newNum),unit)
+                    # continue
+            # else:
+            #     newUnits[Unit(unit_key.major,unit_key.major.default)] = units[unit_key]
+        #     for u in dim.units:
+        #         if newDenom.__contains__(u):
+        #             newDenom.remove(u)
+        #         else:
+        #             newNum.insert(len(newNum), Unit(u.major, u.major.default))
+        #     for u in dim.denominator:
+        #         if newNum.__contains__(u):
+        #             newNum.remove(u)
+        #         else:
+        #             newDenom.insert(len(newNum), Unit(u.major, u.major.default))
+        # for unit in denominator:
+        #     if not unit.major.mro().__contains__(Derived) and unit.minor == unit.major.default:
+        #         if newNum.__contains__(unit):
+        #             newNum.remove(unit)
+        #         else:
+        #             newDenom.insert(len(newDenom),unit)
+        #         continue
+        #     dim = unit.major(1/value, unit.minor)
+        #     value = 1/dim.get_default()
+        #     for u in dim.numerator:
+        #         if newNum.__contains__(u):
+        #             newNum.remove(u)
+        #         else:
+        #             newDenom.insert(len(newNum), Unit(u.major, u.major.default))
+        #     for u in dim.denominator:
+        #         if newDenom.__contains__(u):
+        #             newDenom.remove(u)
+        #         else:
+        #             newNum.insert(len(newNum), Unit(u.major, u.major.default))
 
         self.value = value
-        self.numerator = newNum
-        self.denominator = newDenom
+        self.units = newUnits
+        # self.denominator = newDenom
 
     def get_default(self) -> float:
         return self.value
 
-    def get_special(self, units=None, derived_denom=None, warn=True) -> tuple:
+    def get_special_list(self, units_list:list) -> tuple:
+        new_value = self.value
+        newUnits = self.units.copy()
 
-        newDim = self.__copy__()
-
-        if units is None:
-            units = []
-
-        for uni in units:
-            if uni.major.mro().__contains__(Derived):
-                if warn is True:
-                    print("Warning. Converting to derived units are only supported in numerator.")
-                derivedConverter = uni.major(1,uni.major.default)
-                newDim /= derivedConverter
-                newDim.numerator.append(uni)
-        for uni in units:
-            if uni.minor == uni.major.default:
+        unit: Unit
+        for unit in units_list:
+            print("u:", unit)
+            if not unit.major.mro().__contains__(Derived):
                 continue
-            for unit in [u for u in newDim.numerator if u.major is uni.major]:
-                dim = uni.major(1/newDim.value, uni.minor)
-                newDim.value = 1/dim.get_default()
-                newDim.numerator.remove(unit)
-                newDim.numerator.append(uni)
-            for unit in [u for u in newDim.denominator if u.major is uni.major]:
-                dim = uni.major(newDim.value, uni.minor)
-                newDim.value = dim.get_default()
-                newDim.denominator.remove(unit)
-                newDim.denominator.append(uni)
 
-        return newDim.value, self.unit_to_str(newDim.numerator,newDim.denominator)
+            base_dim = unit.major(1, unit.minor)
+            conversion = 1 / base_dim.get_default()
+            new_value *= conversion
+            for sub_unit_key in base_dim.units.keys():
+                if newUnits.keys().__contains__(sub_unit_key):
+
+                    newUnits[sub_unit_key] -= base_dim.units[sub_unit_key]
+                else:
+                    newUnits[sub_unit_key] = -1 * base_dim.units[sub_unit_key]
+            newUnits[unit] = 1
+
+        unit: Unit
+        for unit in units_list:
+            if unit.major.mro().__contains__(Derived):
+                continue
+
+            self_unit = Unit(unit.major, unit.major.default)
+
+            if not self.units.keys().__contains__(self_unit):
+                continue
+
+            base_dim = unit.major(1, unit.minor)
+            conversion = 1 / base_dim.get_default()
+            new_value *= conversion ** self.units[self_unit]
+            if newUnits.keys().__contains__(self_unit):
+                newUnits[self_unit] -= self.units[self_unit]
+                newUnits[unit] = self.units[self_unit]
+            else:
+                print("I don't think we should ever get here, newunits:", newUnits)
+                newUnits[unit] = -self.units[self_unit]
+
+        return new_value, self.unit_to_str(newUnits)
+
+    def get_special(self, spec_units: list or dict) -> tuple:
+
+        if spec_units.__class__ is list:
+            return self.get_special_list(spec_units)
+
+        if spec_units.__class__ is not dict:
+            raise Exception("Units must be specified as list or dict")
+
+        #TODO: allow for dict to be passed in for derived units. Not sure how we would handled a mixed conversion for base units...
+
+        new_value = self.value
+        newUnits = self.units.copy()
+
+        unit_key: Unit
+        for unit_key in spec_units.keys():
+
+            if not unit_key.major.mro().__contains__(Derived):
+                continue
+
+            base_dim = unit_key.major(1, unit_key.minor)
+            conversion = 1 / base_dim.get_default()
+            new_value *= conversion ** spec_units[unit_key]
+
+            for sub_unit_key in base_dim.units.keys():
+                if newUnits.keys().__contains__(sub_unit_key):
+                    newUnits[sub_unit_key] -= base_dim.units[sub_unit_key] * spec_units[unit_key]
+                else:
+                    print("newUnits.keys NOT contains ", sub_unit_key)
+                    newUnits[sub_unit_key] = -1 * base_dim.units[sub_unit_key] * spec_units[unit_key]
+                    print("made new unit with power ", newUnits[sub_unit_key])
+            newUnits[unit_key] = spec_units[unit_key]
+
+        unit_key: Unit
+        for unit_key in spec_units:
+
+            if unit_key.major.mro().__contains__(Derived):
+                continue
+
+            self_unit = Unit(unit_key.major, unit_key.major.default)
+
+            if not self.units.keys().__contains__(self_unit) or (spec_units[unit_key] < 0) or \
+                    spec_units[unit_key].__class__ is not int or abs(self.units[self_unit]) < spec_units[unit_key]:
+                print("first:",not self.units.keys().__contains__(self_unit))
+                print("sec:",spec_units[unit_key] < 0)
+                print("third:",spec_units[unit_key].__class__ is not int)
+                print("fourth:",abs(self.units[self_unit]) < spec_units[unit_key])
+                print("all:",not self.units.keys().__contains__(self_unit) or spec_units[unit_key] < 0 or\
+                    spec_units[unit_key] is not int or abs(self.units[self_unit]) < spec_units[unit_key])
+                raise Exception("Bad dict input for unit: ",unit_key)
+
+            #If user specifies 0 for a base unit, assume convert all of that unit possible
+            if spec_units[unit_key] == 0:
+                spec_units[unit_key] = abs(self.units[self_unit])
+
+            self_power_sign = int(self.units[self_unit]/abs(self.units[self_unit]))
+
+            base_dim = unit_key.major(1, unit_key.minor)
+            conversion = 1 / base_dim.get_default()
+            new_value *= conversion ** (spec_units[unit_key] * self_power_sign)
+            if newUnits.keys().__contains__(self_unit):
+                newUnits[self_unit] -= spec_units[unit_key] * self_power_sign
+                newUnits[unit_key] = spec_units[unit_key] * self_power_sign
+            else:
+                print("I don't think we should ever get here, newunits:", newUnits)
+                newUnits[unit_key] = -spec_units[unit_key] * self_power_sign
+
+        return new_value, self.unit_to_str(newUnits)
+        # self.value = new_value
+        # self.units = newUnits
+        #
+        # newDim = self.__copy__()
+        #
+        # if units is None:
+        #     units = []
+        #
+        # for uni in units:
+        #     if uni.major.mro().__contains__(Derived):
+        #         derivedConverter = uni.major(1,uni.major.default)
+        #         newDim /= derivedConverter
+        #         newDim.numerator.append(uni)
+        # for uni in units:
+        #     if uni.minor == uni.major.default:
+        #         continue
+        #     for unit in [u for u in newDim.numerator if u.major is uni.major]:
+        #         dim = uni.major(1/newDim.value, uni.minor)
+        #         newDim.value = 1/dim.get_default()
+        #         newDim.numerator.remove(unit)
+        #         newDim.numerator.append(uni)
+        #     for unit in [u for u in newDim.denominator if u.major is uni.major]:
+        #         dim = uni.major(newDim.value, uni.minor)
+        #         newDim.value = dim.get_default()
+        #         newDim.denominator.remove(unit)
+        #         newDim.denominator.append(uni)
+        #
+        # return newDim.value, self.unit_to_str(newDim.numerator,newDim.denominator)
 
     def is_dimless(self) -> bool:
-        return (self.numerator is None or len(self.numerator) == 0) and \
-                    (self.denominator is None or len(self.denominator) == 0)
+        return self.units is None or len(self.units) == 0
 
 
 class Length(Dimension):
@@ -442,8 +563,8 @@ class Length(Dimension):
         else:
             self.invalid = True
             raise ValueError("Invalid minor unit in Length.")
-        self.numerator = [Unit(self.__class__, self.default)]
-        self.denominator = []
+        self.units = self.default_units()
+        # self.denominator = []
         # super().__init__(self.value, numerator=[Unit(self.__class__, self.default)])
 
     # def __str__(self):
@@ -516,8 +637,7 @@ class Mass(Dimension):
         else:
             self.invalid = True
             raise ValueError("Invalid minor unit in Mass.")
-        self.numerator = [Unit(self.__class__, self.default)]
-        self.denominator = []
+        self.units = {Unit(self.__class__, self.default):1}
         # print("init self val: ",self.value)
         # super().__init__(self.value, numerator=[Unit(self.__class__, self.default)])
 
@@ -581,8 +701,8 @@ class Time(Dimension):
         else:
             self.invalid = True
             raise ValueError("Invalid minor unit in Time.")
-        self.numerator = [Unit(self.__class__, self.default)]
-        self.denominator = []
+        self.units = self.default_units()
+        # self.denominator = []
         # super().__init__(self.value, numerator=[Unit(self.__class__, self.default)])
 
     # def __str__(self):
@@ -671,8 +791,9 @@ class TempEnergy(Derived):
             self.invalid = True
             raise ValueError("Invalid minor unit in TempEnergy.")
         super().__init__(self.value,
-                         numerator=[Unit(Mass, Mass.kg), Unit(Length,Length.m), Unit(Length,Length.m)],
-                         denominator=[Unit(Time,Time.s),Unit(Time,Time.s)])
+                         units={Unit(Mass, Mass.kg):1,Unit(Length,Length.m):2,Unit(Time,Time.s):-2})
+                         # numerator=[Unit(Mass, Mass.kg), Unit(Length,Length.m), Unit(Length,Length.m)],
+                         # denominator=[Unit(Time,Time.s),Unit(Time,Time.s)])
 
     def __str__(self):
         if self.invalid:
@@ -761,9 +882,7 @@ class Pressure(Derived):
         else:
             self.invalid = True
             raise ValueError("Invalid minor unit in Pressure.")
-        super().__init__(self.value,
-                         numerator=[Unit(Mass, Mass.kg),],
-                         denominator=[Unit(Length, Length.m),Unit(Time,Time.s),Unit(Time,Time.s)])
+        super().__init__(self.value, units={Unit(Mass, Mass.kg):1,Unit(Length, Length.m):-1,Unit(Time,Time.s):-2})
 
     def __str__(self):
         if self.invalid:
@@ -806,8 +925,7 @@ class Force(Derived):
             self.invalid = True
             raise ValueError("Invalid minor unit in Force.")
         super().__init__(self.value,
-                         numerator=[Unit(Mass, Mass.kg),Unit(Length, Length.m)],
-                         denominator=[Unit(Time,Time.s),Unit(Time,Time.s)])
+                         units={Unit(Mass, Mass.kg):1,Unit(Length, Length.m):1,Unit(Time,Time.s):-2})
 
     def __str__(self):
         if self.invalid:
@@ -828,7 +946,7 @@ class Force(Derived):
         else:
             raise ValueError("Invalid minor string in get Force.")
 
-
+# TODO: fundies so we can restore tempenergy
 class Temperature(Dimension):
 
     default = "K"
@@ -854,8 +972,7 @@ class Temperature(Dimension):
         else:
             self.invalid = True
             raise ValueError("Invalid minor unit in Temperature.")
-        self.numerator = [Unit(self.__class__, self.default)]
-        self.denominator = []
+        self.units = {Unit(self.__class__, self.default):1}
         # super().__init__(self.value, numerator=[Unit(Temperature, Temperature.K),])
 
     # def __str__(self):
@@ -999,7 +1116,8 @@ class Charge(Derived):
             self.invalid = True
             raise ValueError("Invalid minor unit in Charge.")
         super().__init__(self.value,
-                         numerator=[Unit(Current, Current.A), Unit(Time,Time.s)])
+                         units={Unit(Current, Current.A):1, Unit(Time,Time.s):1})
+                         # numerator=[Unit(Current, Current.A), Unit(Time,Time.s)])
 
     def __str__(self):
         if self.invalid:
@@ -1179,7 +1297,7 @@ class Volume(Derived):
             self.invalid = True
             raise ValueError("Invalid minor unit in Volume.")
         super().__init__(self.value,
-                         numerator={Unit(Length, Length.m):3})
+                         units={Unit(Length, Length.m):3})
 
     def __str__(self):
         if self.invalid:
@@ -1207,13 +1325,11 @@ class Fun:
 
     # permitivity of free space - 8.85418782e-12 C^2/N*m^2
     epsilon_0 = Derived(8.85418782e-12,
-                        numerator=[Unit(Charge,Charge.C),Unit(Charge,Charge.C),],
-                        denominator=[Unit(Force,Force.N),Unit(Length,Length.m),Unit(Length,Length.m)])
+                        units={Unit(Charge,Charge.C):2,Unit(Force,Force.N):-1,Unit(Length,Length.m):-2})
 
     # Boltzmann's constant - 1.3807e-23 J/K
     k_B = Derived(1.3807e-23,
-                  numerator=[Unit(TempEnergy,TempEnergy.J)],
-                  denominator=[Unit(Temperature,Temperature.K)])
+                  units={Unit(TempEnergy,TempEnergy.J):1,Unit(Temperature,Temperature.K):-1})
 
     #Charge of an electron - 1.6022e-19 C
     e_charge = Charge(1.6022e-19,Charge.C)
@@ -1229,37 +1345,40 @@ class Fun:
 
     #G times mass of earth - 3.986e14 m^3/s^2
     mu_E = Derived(3.986e14,
-                   numerator=[Unit(Length,Length.m),Unit(Length,Length.m),Unit(Length,Length.m),],
-                   denominator=[Unit(Time,Time.s),Unit(Time,Time.s),])
+                   units={Unit(Length,Length.m):3,Unit(Time,Time.s):-2})
 
-    # Newton's gravitational constant: 6.67430e-11 N*m^21/kg^2
-    G = Derived(6.6743e-11,
-                numerator={Unit(Force,Force.N):1,Unit(Length,Length.m):2},
-                denominator={Unit(Mass,Mass.kg):2})
+    # Newton's gravitational constant: 6.67430e-11 N*m^2/kg^2
+    G = Derived(6.67408e-11,
+                units={Unit(Force,Force.N):1,Unit(Length,Length.m):2,Unit(Mass,Mass.kg):-2})
 
     # Mass of Earth: 5.9722e24 kg
     m_Earth = Mass(5.9722e24, Mass.kg)
 
     #Universal Gas Constant - 8.31446261815324 J/K*mol
     R = Derived(8.31446261815324,
-                numerator=[Unit(TempEnergy,TempEnergy.J)],
-                denominator=[Unit(Temperature,Temperature.K),Unit(Amount,Amount.mol)])
+                units={Unit(TempEnergy,TempEnergy.J):1,Unit(Temperature,Temperature.K):-1,Unit(Amount,Amount.mol):-1})
+                # numerator=[Unit(TempEnergy,TempEnergy.J)],
+                # denominator=[Unit(Temperature,Temperature.K),Unit(Amount,Amount.mol)])
 
     #Plank's constant - 6.62607015 * 10^-34 J*s
     h = Derived(6.62607015e-34,
-                numerator=[Unit(TempEnergy,TempEnergy.J),Unit(Time,Time.s)])
+                units={Unit(TempEnergy,TempEnergy.J):1,Unit(Time,Time.s):1})
+                # numerator=[Unit(TempEnergy,TempEnergy.J),Unit(Time,Time.s)])
 
     #Speed of light in vacuum - 299792458 m/s
     c = Derived(299792458,
-                numerator=[Unit(Length, Length.m)],
-                denominator=[Unit(Time, Time.s)])
+                units={Unit(Length, Length.m):1,Unit(Time, Time.s):-1})
+
 
     #Stefan-Boltzmann constant - 2*(np.pi**5)*(k_B**4)/(15*(h**3)*(c**2))
     #TODO: something slightly wrong in reduction algorithm, had time in numerator and denominator if unit order in numerator swapped
     sigma_SB = Derived(5.6703744191844294539709967318892308758401229702913e-8,
-                       numerator=[Unit(Time, Time.s), Unit(TempEnergy, TempEnergy.J), ],
-                       denominator={Unit(Length, Length.m):2,Unit(Temperature, Temperature.K):4})
+                       units={Unit(Time, Time.s):1, Unit(TempEnergy, TempEnergy.J):1,Unit(Length, Length.m):-2,Unit(Temperature, Temperature.K):-4})
+                       # numerator=[Unit(Time, Time.s), Unit(TempEnergy, TempEnergy.J), ],
+                       # denominator={Unit(Length, Length.m):2,Unit(Temperature, Temperature.K):4})
+
     #Acceleration due to gravity at Earth's surface - 9.80665 m/s^2
     g_E_0 = Derived(9.80665,
-                    numerator=[Unit(Length, Length.m)],
-                    denominator={Unit(Time, Time.s):2})
+                    units={Unit(Length, Length.m):1,Unit(Time, Time.s):-2})
+                    # numerator=[Unit(Length, Length.m)],
+                    # denominator={Unit(Time, Time.s):2})
