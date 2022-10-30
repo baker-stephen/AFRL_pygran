@@ -284,13 +284,20 @@ if __name__ == "__main__":
     #     print("Aw cheng:", A_Es[i]/M_factor(Ns[i],poroses[i])**2)
     #     print("Bw me:",Bw_cores[i]+Bw_anns[i])
     #     print("Bw cheng:", B_Es[i]/M_factor(Ns[i],poroses[i]))
-
+    fig1, ax1 = plt.subplots()
     Cheng_Aws = [A_E/M_factor(N,poros)**2 for A_E,N,poros in zip(A_Es,Ns,poroses)]
-    plt.plot(Ns,[sum(aws) for aws in zip(Aw_cores,Aw_anns)])
-    plt.plot(Ns,Cheng_Aws)
+    ax1.plot(Ns,[sum(aws) for aws in zip(Aw_cores,Aw_anns)],label="Flow paths")
+    ax1.plot(Ns,Cheng_Aws,label="Cheng")
+    ax1.set_xlabel("D/d ratio")
+    ax1.set_ylabel("Aw")
+    ax1.legend()
     plt.show()
 
+    fig2, ax2 = plt.subplots()
     Cheng_Bws = [B_E / M_factor(N, poros) for B_E, N, poros in zip(B_Es, Ns, poroses)]
-    plt.plot(Ns,[sum(bws) for bws in zip(Bw_cores,Bw_anns)])
-    plt.plot(Ns, Cheng_Bws)
+    ax2.plot(Ns,[sum(bws) for bws in zip(Bw_cores,Bw_anns)],label="Flow paths")
+    ax2.plot(Ns, Cheng_Bws,label="Cheng")
+    ax2.set_xlabel("D/d ratio")
+    ax2.set_ylabel("Bw")
+    ax2.legend()
     plt.show()

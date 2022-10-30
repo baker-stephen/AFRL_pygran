@@ -45,7 +45,7 @@ class PD:
                '1.59': [0.0, 9.5, 1.0, 9.5],
                '0.602': [0.0, 10.0, 2.0, 10.0]}
 
-    def __init__(self, ID: str, DP: str, num_inserts=1):
+    def __init__(self, ID: str, DP: str, num_inserts=1, reso=(800,800,2500,200)):
         self.ID_str = ID
         self.DP_str = DP
         # Inner diameter is given simply as a decimal
@@ -57,6 +57,7 @@ class PD:
         # Increasing this number greatly increases the runtime, but can yield more optimal packing.
         self.num_inserts = num_inserts
         self.out_dir = "not_created"
+        self.reso = reso
 
     def length(self) -> float:
         return self.lens[self.ID_str]
@@ -210,4 +211,4 @@ class PD:
         :return: x, y, z, and resolution to make into a 3D grid, and then 1D radial average.
         I have found these values to work best at all ID and DP in my testing.
         """
-        return (100,100,305,200)
+        return self.reso
