@@ -1,0 +1,141 @@
+out_dir: outputs/0pt602/2pt8_25pt4/sim_out_10:58:40_30-10-2022
+
+
+Simulation Complete!
+
+
+now out_dir: outputs/0pt602/2pt8_25pt4/sim_out_10:58:40_30-10-2022
+OG out_dir: outputs/0pt602/2pt8_25pt4/sim_out_10:58:40_30-10-2022
+Directory 'outputs/0pt602/2pt8_25pt4/csvs' created successfully
+
+step:  100000
+step:  200000
+step:  300000
+step:  400000
+step:  500000
+step:  600000
+step:  700000
+step:  800000
+step:  900000
+step:  1000000
+step:  1100000
+step:  1200000
+step:  1300000
+step:  1400000
+step:  1500000
+step:  1600000
+step:  1700000
+step:  1800000
+step:  1900000
+step:  2000000
+step:  2100000
+step:  2200000
+step:  2300000
+step:  2400000
+step:  2500000
+step:  2600000
+step:  2700000
+step:  2800000
+step:  2900000
+step:  3000000
+step:  3100000
+step:  3200000
+step:  3300000
+step:  3400000
+step:  3500000
+step:  3600000
+step:  3700000
+step:  3800000
+step:  3900000
+step:  4000000
+step:  4100000
+step:  4200000
+step:  4300000
+step:  4400000
+step:  4500000
+step:  4600000
+step:  4700000
+step:  4800000
+step:  4900000
+step:  5000000
+step:  5100000
+step:  5200000
+step:  5300000
+step:  5400000
+step:  5500000
+step:  5600000
+step:  5700000
+step:  5800000
+step:  5900000
+step:  6000000
+step:  6100000
+step:  6200000
+step:  6300000
+step:  6400000
+step:  6500000
+step:  6600000
+step:  6700000
+step:  6800000
+step:  6900000
+step:  7000000
+step:  7100000
+step:  7200000
+step:  7300000
+step:  7400000
+step:  7500000
+step:  7600000
+step:  7700000
+step:  7800000
+step:  7900000
+step:  8000000
+step:  8100000
+step:  8200000
+step:  8300000
+step:  8400000
+step:  8500000
+step:  8600000
+step:  8700000
+step:  8800000
+step:  8900000
+step:  9000000
+step:  9100000
+step:  9200000
+step:  9300000
+step:  9400000
+step:  9500000
+step:  9600000
+step:  9700000
+step:  9800000
+step:  9900000
+step:  10000000
+step:  10100000
+step:  10200000
+step:  10300000
+step:  10400000
+step:  10500000
+step:  10600000
+step:  10700000
+step:  10800000
+step:  10900000
+step:  11000000
+step:  11100000
+step:  11200000
+step:  11300000
+step:  11400000
+step:  11500000
+step:  11600000
+step:  11700000
+step:  11800000
+Done converting to csvs
+
+All Pygran steps complete
+new write directory: outputs/0pt602/2pt8_25pt4/
+Beginning overall porosity determination and grid construction.
+Parameters received:
+../outputs/0pt602/2pt8_25pt4/particles11850000.csv
+0.11023622047244094
+0.602
+0.0
+10.0
+(800, 800, 2500, 200)
+start
