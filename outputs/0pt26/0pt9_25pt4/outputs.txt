@@ -180,7 +180,8 @@ avg poros fit integ: 0.5474615595350565
 mean from generated pts: 0.5474934826340686
 std dev from generated pts: 0.11488587725645846
 plotme runtime: 1.3544774055480957
-volume averaged porosity: 0.5521456282696136mean poros for rs:0.40930353406536785
+volume averaged old porosity: 0.5521456282696136
+mean poros for rs:0.40930353406536785
 std dev in r:0.1527605548122897
 ultimate_poros runtime: 2687.6763622760773
 std dev r, after first index: 0.15346045191693433

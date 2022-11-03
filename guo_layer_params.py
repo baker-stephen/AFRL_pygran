@@ -1,192 +1,118 @@
 import numpy as np
-from scipy.optimize import curve_fit
-from fluent.fluent import poros_Guo
+from param_defn import PD
 
 ID_DP_dict = {'0.26': ['0.7/25.4', '0.8/25.4', '0.9/25.4', '0.85/25.4', '1/25.4', '1.1/25.4', '1.2/25.4', '1.5/25.4', '1.7/25.4'],
-              '0.602': ['1/4', '1/8', '1/16', '3/16', '3/32', '7/16'],
-              '1.029': ['1/4', '1/8', '3/16', '5/16', '7/16'],
+              '0.602': ['1/4', '1/8', '1/16', '3/16', '7/16'], #Not ready yet: '3/32', '2.8/25.4',
+              '1.029': ['1/4', '1/8', '3/16', '3/32', '5/16', '7/16', '15/32'], #Not ready yet: '5/32',
               '1.59': ['1/4', '1/8', '3/16', '5/16', '5/32', '7/16', '7/32', '9/32', '9/64', '15/64']}
 
-if __name__=="__main__":
-    zdata = []
+if __name__ == "__main__":
+    csv = open('guo_layers.csv', 'w')
+    csv.write("D,Dp,N,por pg,por nl,rel err,n,l\n")
 
-    pipe_in_rad = 1.029 / 2
+    for D_str in ID_DP_dict.keys():
+        for Dp_str in ID_DP_dict[D_str]:
 
-    x_res = 800
-    x0 = -pipe_in_rad
-    xM = pipe_in_rad
-    dx = (xM - x0) / (x_res + 1)
+            print("D: "+D_str+", Dp: "+Dp_str)
 
-    y_res = 800
-    y0 = -pipe_in_rad
-    yM = pipe_in_rad
-    dy = (yM - y0) / (y_res + 1)
+            params = PD(D_str, Dp_str)
 
-    z_res = 2500
-    #TODO: adjust zM,z0
-    z0 = .5
-    zM = 5.0
-    dz = (zM - z0) / (z_res + 1)
-    with open('avg_z_'+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'.npy', 'rb') as znpy:
-        zdata = np.load(znpy)
-        znpy.close()
+            params.output_dir()
 
-    start_phys = 1.0
-    start_ind = (start_phys-z0)/dz
-    print("start_ind:",start_ind)
-    start_ind = round(start_ind)
+            wrt_dir = params.out_dir[:params.out_dir.rfind('/') + 1]
 
-    minim = 1.0
-    maxim = 0.0
+            pipe_in_rad = params.ID / 2
+            D = params.ID
+            Dp = params.DP
 
-    for z in zdata[start_ind:]:
-        if z<minim:
-            minim = z
-        if z>maxim:
-            maxim = z
+            res = params.res()
+            x_res = res[0]
+            x0 = -pipe_in_rad
+            xM = pipe_in_rad
+            dx = (xM - x0) / (x_res + 1)
 
-    print("min", minim)
-    print("max", maxim)
+            y_res = res[1]
+            y0 = -pipe_in_rad
+            yM = pipe_in_rad
+            dy = (yM - y0) / (y_res + 1)
 
-    amp = (maxim - minim)/2
-    print("amp:",amp)
-    off = (maxim + minim)/2
-    print("off:",off)
+            z_res = res[2]
+            z0 = params.z0_cutoff()
+            zM = params.zM_cutoff()
+            dz = (zM - z0) / (z_res + 1)
 
-    positions = []
-    with open('particles.csv','r') as r:
-        r.readline()
-        for line in r:
-            xyz = [float(p) for p in line.split(",")]
-            positions.append(xyz)
-        r.close()
+            positions = []
+            with open(wrt_dir+'particles.csv', 'r') as r:
+                r.readline()
+                for line in r:
+                    xyz = [float(p) for p in line.split(",")]
+                    positions.append(xyz)
+                r.close()
 
-    positions = sorted(positions, key=lambda x: x[2])
-    DP = 1/4
-    sphere_rad = DP/2
-    ball_r = sphere_rad
-    ball_r_sq = ball_r ** 2.0
-    full_ball_vol = (4.0 / 3.0) * np.pi * ball_r ** 3.0
+            positions = sorted(positions, key=lambda x: x[2])
 
-    total_balls_vol = 0
-    for p in positions:
-        xc = p[0]
-        yc = p[1]
-        zc = p[2]
+            layers = []
+            layer_pos = []
+            for xyz in positions:
+                z = xyz[2]
+                if len(layers) == 0:
+                    layers.append([xyz])
+                    layer_pos.append([z,z,z])
+                else:
+                    did_add = False
+                    for li,lp in enumerate(layer_pos):
+                        if abs(z-lp[2]) < Dp/4:
+                            did_add=True
+                            layers[li].append(xyz)
+                            if z<lp[0]:
+                                lp[0] = z
+                            elif z>lp[1]:
+                                lp[1] = z
+                            avg = 0
+                            for pos in layers[li]:
+                                avg += pos[2]
+                            lp[2] = avg/len(layers[li])
+                            break
 
-        # If the entirety of the current position is greater than height max, we're done, since sorted by z
-        if zc - ball_r > zM:
-            break
+                    if not did_add:
+                        layers.append([xyz])
+                        layer_pos.append([z, z, z])
 
-        # the entirety of the current ball is below the height minimum, disregard
-        elif zc + ball_r < start_phys:
-            continue
+            ns = [len(layer) for layer in layers]
+            print("ns:",ns)
+            n_avg = np.mean(ns)
+            print("n avg:",n_avg)
 
-        # The whole ball is within the region of interest
-        elif zc + ball_r < zM and zc - ball_r > start_phys:
-            total_balls_vol += full_ball_vol
+            ls = []
+            for i in range(1,len(layer_pos)-1):
+                prev = layer_pos[i][2] - layer_pos[i-1][2]
+                next = layer_pos[i+1][2] - layer_pos[i][2]
+                ls.append((prev+next)/2)
 
-        # A portion of the ball is within the region of interest, subtract the volume that is above
-        elif zc - ball_r > start_phys:
-            h = zc + ball_r - zM
-            vol_cap = (1.0 / 3.0) * np.pi * h ** 2.0 * (3.0 * ball_r - h)
-            total_balls_vol += full_ball_vol - vol_cap
+            print("ls:",ls)
+            l_avg = np.mean(ls)
+            print("l avg:",l_avg)
 
-        # A portion of the ball is within the region of interest, subtract the volume that is below
-        else:
-            h = zc + ball_r - start_phys
-            vol_cap = (1.0 / 3.0) * np.pi * h ** 2.0 * (3.0 * ball_r - h)
-            total_balls_vol += vol_cap
+            k1 = n_avg*Dp**2 / D**2
+            k2 = Dp/l_avg
 
-    pipe_vol = np.pi * pipe_in_rad ** 2 * (zM - start_phys)
+            porosity = 1 - (2/3)*k1*k2
 
-    porosity_calc = (pipe_vol - total_balls_vol) / pipe_vol
-    print("calculated porosity:",porosity_calc)
+            N = D/Dp
+            vol_avg_por = -1
+            with open(wrt_dir+'outputs.txt', 'r') as out_txt:
+                key_str = "volume averaged porosity: "
+                for line in out_txt:
+                    if line.__contains__(key_str):
+                        vol_avg_por_str = line[len(key_str)+1:]
 
-    fguesses = []
-    errs = []
-    phis = []
-    lhs = []
-    k1s = []
-    k2s = []
-    mzcs = []
-    for guess in range(45,55):
-        # guess = 50
-        def to_fit(x: float, f: float, phi: float):
-            return amp*np.sin(guess*2*np.pi*f*x/(zM-start_phys)+phi)+off
+                vol_avg_por = float(vol_avg_por_str)
 
+                out_txt.close()
 
-        xdata = np.linspace(start_phys,zM,len(zdata[start_ind:]))
-        print("xdata shape:", xdata.shape)
-        print("xdata:", xdata)
-        ydata = np.array(zdata[start_ind:])
-        print("ydata shape:", ydata.shape)
-        print(ydata)
+            rel_err = 2*abs(vol_avg_por - porosity)/(vol_avg_por + porosity)
 
-        coefs, something = curve_fit(to_fit, xdata, ydata,maxfev=10000)
-        print("coefs:", coefs)
-        print("f:",coefs[0])
-        print("f guess:", coefs[0]*guess)
-        fguesses.append(coefs[0]*guess)
-        print("phi:",coefs[1])
-        phis.append(coefs[1])
+            csv.write(D_str+','+Dp_str+','+str(N)+','+str(vol_avg_por)+','+str(porosity)+','+str(rel_err)+','+str(n_avg)+','+str(l_avg)+'\n')
+            print()
 
-
-
-        layer_height = 2*(zM-start_phys)/(guess*coefs[0])
-        print("layer h:",layer_height)
-        lhs.append(layer_height)
-        print("sph rad:",sphere_rad)
-        k2 = DP/layer_height
-        print("k2:",k2)
-        k2s.append(k2)
-
-
-
-        z_counts = np.zeros(len(zdata[start_ind:]))
-        for i,z_ind in enumerate(range(len(zdata[start_ind:]))):
-            z = z0 + (i + start_ind) * dz
-            for pos in positions:
-                if z-(layer_height/2) < pos[2] < z+(layer_height/2):
-                    z_counts[z_ind]+=1
-        print("zcounts:",z_counts)
-        mzc = np.mean(z_counts)
-        mzcs.append(mzc)
-        print("mean zcounts:",mzc)
-
-        k1 = mzc*sphere_rad**2/(pipe_in_rad**2)
-        k1s.append(k1)
-        print("k1:",k1)
-
-        poros = 1 - (2/3)*k1*k2
-        print("poros:",poros)
-        errs.append(abs(poros-porosity_calc)/porosity_calc)
-        print("err:",abs(poros-porosity_calc)/porosity_calc)
-    N = pipe_in_rad / sphere_rad
-    print("N:", N)
-    print("Guo poros:",poros_Guo(N))
-
-    print("errs")
-    print(errs)
-    min_err = 1.0
-    err_ind = -1
-    for i,err in enumerate(errs):
-        if err<min_err:
-            min_err = err
-            err_ind = i
-
-    print("min_err:",min_err)
-    print("best fguess:",fguesses[err_ind])
-    print("best phi:",phis[err_ind])
-    print("best mzc:", mzcs[err_ind])
-    print("best lh:", lhs[err_ind])
-
-
-    with open('guo_layers.csv','w') as csv:
-        csv.write('z,data,fit\n')
-        for i,z in enumerate(zdata[start_ind:]):
-            csv.write(str(z0+(i+start_ind)*dz)+',')
-            csv.write(str(z)+',')
-            csv.write(str(to_fit(z0+(i+start_ind)*dz,fguesses[err_ind],phis[err_ind]))+'\n')
-
-        csv.close()
+    csv.close()
