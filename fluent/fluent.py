@@ -103,14 +103,10 @@ if __name__ == "__main__":
     m = 2
 
     # Density of water defined in Fluent materials.
-    rho = Derived(998.2,
-                  numerator=[Unit(Mass,Mass.kg)],
-                  denominator={Unit(Length,Length.m):3})
+    rho = Derived(998.2, {Unit(Mass, Mass.kg): 1, Unit(Length, Length.m): -3, })
 
     # Dynamic viscosity of water defined in Fluent materials.
-    dyn_viscosity = Derived(0.001003,
-                            numerator=[Unit(Mass,Mass.kg)],
-                            denominator=[Unit(Length,Length.m),Unit(Time,Time.s)])
+    dyn_viscosity = Derived(0.001003,{Unit(Mass, Mass.kg): 1, Unit(Length, Length.m): -1,Unit(Time,Time.s):-1})
 
     # Pipe length
     leng = Length(12,Length.inch)
@@ -144,13 +140,12 @@ if __name__ == "__main__":
     # porosity = 0.416128576115776
     porosity = empirical_porosity
     D_H = np.sqrt(8*Dp**2*porosity**3/(9*(1-porosity)**2))
-    print("D_H:",D_H.get_special(units=[Unit(Length,Length.inch)]))
+    print("D_H:",D_H.get_special([Unit(Length,Length.inch)]))
     A_H_ratio = D_H**2/D**2
     print("A_H_ratio:",A_H_ratio)
 
     # Calulate mass flow rate from volumetric flow rate of experiment
-    rho_h20_exp = Derived(998.23, numerator=[Unit(Mass,Mass.kg)],
-                          denominator={Unit(Length,Length.m):3})
+    rho_h20_exp = Derived(998.23, {Unit(Mass, Mass.kg): 1, Unit(Length, Length.m): -3, })
 
     # TODO: adjust gallons per minute if necessary/desired
     vol = Volume(1,Volume.gal)
@@ -205,10 +200,10 @@ if __name__ == "__main__":
     print(float(C2))
     dpdx = cheng_dp(A_E,B_E,porosity,rho,dyn_viscosity,Dp,superficial_velo)
     print("dpdx: ",dpdx)
-    print("dpdx: ",dpdx.get_special([Unit(Pressure,Pressure.psi)],warn=False))
+    print("dpdx: ",dpdx.get_special([Unit(Pressure,Pressure.psi)]))
     print("dpdx (Pa/m):", float(dpdx))
     dp_total = dpdx*leng
-    print("dp_total: ", dp_total.get_special(units=[Unit(Pressure,Pressure.psi)],warn=False))
+    print("dp_total: ", dp_total.get_special([Unit(Pressure,Pressure.psi)]))
     print("dp_total (Pa): ",float(dp_total))
 
     print("\nother possibly relevant outputs:")
@@ -223,9 +218,7 @@ if __name__ == "__main__":
     print("C2 other: ", C2_other)
     print(float(C2_other))
 
-    sdpdx = Derived(20.523858267716538,
-                    numerator=[Unit(Pressure,Pressure.Pa)],
-                    denominator=[Unit(Length,Length.m)])
+    sdpdx = Derived(20.523858267716538,{Unit(Pressure,Pressure.Pa):1,Unit(Length,Length.m):-1})
     RHS = sdpdx/dyn_viscosity
     print("RHS:",RHS)
     print(float(RHS))

@@ -1,6 +1,8 @@
 from dimension import *
 import matplotlib.pyplot as plt
 
+from scipy.optimize import fsolve
+
 
 def tau_ann(l: Length, d: Length) -> float:
     """
@@ -10,7 +12,8 @@ def tau_ann(l: Length, d: Length) -> float:
     :param d: sphere diameter
     :return: tau_a
     """
-    return float(1 + d * (np.pi ** 2 - 8) / (8 * np.pi * l))
+    # return float(1 + d * (np.pi ** 2 - 8) / (8 * np.pi * l))
+    return float(1 + 0.5*d*(1-np.pi/4)/l)
 
 
 def tau_core(l: Length, d: Length) -> float:
@@ -21,7 +24,7 @@ def tau_core(l: Length, d: Length) -> float:
     :param d: sphere diameter
     :return: tau_c
     """
-    return float(1 + d * (np.pi / 2 - 1) / l)
+    return float(1 + 0.5 * d * (np.pi / 2 - 1) / l)
 
 
 def A_intercept(D: Length, d: Length) -> Derived:
@@ -51,7 +54,57 @@ def Dh_core(D: Length, d: Length, n: float, na: float) -> Length:
     """
     N = float(D / d)
     A_int = A_intercept(D, d)
-    return d * np.sqrt((N ** 2 + 2 * N - n + na + 1 - 4 * A_int / (np.pi * d ** 2)) / (n-1))
+    return d * np.sqrt((N ** 2 + 2 * N - n + na + 1 - 4 * na * A_int / (np.pi * d ** 2)) / (n-1))
+
+def Acore(D: Length, d: Length, n: float, na: float) -> Derived:
+    """
+    Mean capillary tube area in the core.
+    :param D: Inner diameter of the tube
+    :param d: Sphere diameter
+    :param n: Number of spheres per layer
+    :param na: Number of spheres per layer forming the annulus
+    :return: D_h_c
+    """
+    N = float(D / d)
+    A_int = A_intercept(D, d)
+    return 0.25 * np.pi * d ** 2 * (N ** 2 + 2 * N - n + na + 1 - 4 * na * A_int / (np.pi * d ** 2)) / (n - 1)
+
+def Atotal_core(D: Length, d: Length, n: float, na: float) -> Derived:
+    """
+    Mean capillary tube area in the core.
+    :param D: Inner diameter of the tube
+    :param d: Sphere diameter
+    :param n: Number of spheres per layer
+    :param na: Number of spheres per layer forming the annulus
+    :return: D_h_c
+    """
+    N = float(D / d)
+    A_int = A_intercept(D, d)
+    return 0.25 * np.pi * d ** 2 * (N ** 2 + 2 * N - n + na + 1) - na * A_int
+
+def Apath_core(d: Length)->Derived:
+    R = d/2
+    return R**2*(4-np.pi)
+
+def Pcore(Acore: Derived, d: Length)->Length:
+    """
+    Capillary tube perimeter in the core
+    :param Acore: Mean capillary tube area in the core (m^2)
+    :param d: Sphere diameter
+    :return: Pc
+    """
+    R = float(d)/2
+    def f(P):
+        x0 = R*np.cos(P[0]/(4*R))
+        Acirc_int = np.pi*R**2/4 - 0.5*x0*np.sqrt(R**2-x0**2) - 0.5*R**2*np.arctan(x0/np.sqrt(R**2-x0**2))
+        s = 2*(x0-2*R/np.sqrt(5))
+        A_calc = s**2 - 8*Acirc_int
+        return float(Acore)-A_calc
+
+    root = fsolve(f,float(np.sqrt(Acore)))
+    print("root:",root)
+    print(f(root))
+    print(np.isclose(f(root), 0.0))
 
 
 def Dh_ann(D: Length, d: Length, na: float) -> Length:
@@ -82,8 +135,55 @@ def alpha(cf1: float, cf2: float, rho: Derived, tau: float, mu: Derived, u: Deri
     :return: alpha (1/m^2)
     """
     return 2 * cf1 * rho ** (1 - cf2) * tau ** (2 - cf2) * mu ** (cf2 - 1) * u ** (1 - cf2) / (
-            D_H ** (1 + cf2) * phi ** (1 - cf2))
+            D_H ** (1 + cf2) * phi ** (2 - cf2))
 
+def alpha_new(cf1: float, cf2: float, rho: Derived, tau: float, mu: Derived, u: Derived, d: Length,
+          phi: float, a: float) -> Derived:
+    """
+    Viscous/skin resistance coefficient, appears next to viscosity times superficial velocity.
+    :param cf1: Scaling coefficient for skin friction coefficient versus Reynolds number
+    :param cf2: Exponential coefficient for skin friction coefficient versus Reynolds number
+    :param rho: mass density (kg/m^3)
+    :param tau: tortuosity
+    :param mu: dynamic viscosity (kg/m*s)
+    :param u: superficial velocity (m/s)
+    :param d: particle diameter (m)
+    :param phi: porosity
+    :param a: area expansion factor
+    :return: alpha (1/m^2)
+    """
+    hydr_D = 0.5*d*(4*a**2-np.pi)/(2*(a-1) + np.pi/2)
+    return cf1 * 2 * np.pi * rho ** (1 - cf2) * tau ** (2 - cf2) * mu ** (cf2 - 1) * u ** (1 - cf2) / (
+        2 * (a**2 - np.pi/4) * phi ** (2 - cf2) * d * hydr_D**cf2)
+
+def alpha_ann(cf1: float, cf2: float, rho: Derived, tau: float, mu: Derived, u: Derived, d: Length,
+          phi: float) -> Derived:
+    Aint = A_intercept(D,d)
+    N = float(D/d)
+    theta = theta_ann(N)
+    n_a = na(N)
+    Theta_ex = (2/n_a)*(np.pi - n_a*theta)
+    theta_adj = theta + 0.5*Theta_ex
+    hydr_D = 4*(d**2*theta_adj*(2*N-1)/4 - (np.pi*0.25*d**2 - Aint))/(theta_adj*D + 0.5*np.pi*d + Theta_ex*(D/2 - d/2))
+    return cf1 * (theta_adj*D + 0.5*np.pi*d) * rho ** (1 - cf2) * tau ** (2 - cf2) * mu ** (cf2 - 1) * u ** (1 - cf2) / (
+        2 * (d**2*theta_adj*(2*N-1)/4 - (np.pi*0.25*d**2 - Aint)) * phi ** (2 - cf2) * hydr_D**cf2)
+
+def expand_factor_core(d: Length, n: int, D: Length, n_a: int)->float:
+    """
+    Area expansion factor
+    :param d:
+    :param n:
+    :param D:
+    :param n_a:
+    :return: a
+    """
+    At = Atotal_core(D,d,n,n_a)
+    N_guess = 1
+    if n>3:
+        N_guess = n - 1
+    Aguess = At/N_guess
+    a = np.sqrt((Aguess+np.pi*d**2/4)/d**2)
+    return float(a)
 
 def beta(cD: float, tau: float, D_H: Length, phi: float) -> Derived:
     """
@@ -96,6 +196,16 @@ def beta(cD: float, tau: float, D_H: Length, phi: float) -> Derived:
     """
     return cD * tau ** 2 / (2 * phi ** 2 * D_H)
 
+def beta_new(cD: float, tau: float, l: Length, phi: float) -> Derived:
+    """
+    Inertial/orifice resistance coefficient, appears next to density times superficial velocity squared.
+    :param cD: Orifice flow resistance coefficient
+    :param tau: tortuosity
+    :param l: Layer height (m)
+    :param phi: porosity
+    :return: beta (1/m)
+    """
+    return cD * tau / (2 * phi ** 2 * l)
 
 def Ergun_alpha(A_E: float, epsilon: float, d: Length) -> Derived:
     """
@@ -118,12 +228,21 @@ def Ergun_beta(B_E: float, epsilon: float, d: Length) -> Derived:
     """
     return B_E * (1 - epsilon) / (epsilon ** 3 * d)
 
+def theta_ann(N: float)->float:
+    return np.arccos(1 / np.sqrt((N ** 2 - 2 * N + 1) / (N ** 2 - 2 * N)))
 
 def na(N: float) -> int:
     if N <= 2:
         return 1
-    theta = np.arccos(1 / np.sqrt((N ** 2 - 2 * N + 1) / (N ** 2 - 2 * N)))
-    return int(np.pi / theta)
+    else:
+        return int(np.pi / theta_ann(N))
+
+
+def na_float(N: float) -> float:
+    if N <= 2:
+        return 1
+    else:
+        return np.pi / theta_ann(N)
 
 
 def Guo_params(N: float, d: Length) -> (float, float):
@@ -207,19 +326,39 @@ def Bw_derive(beta:Derived,epsilon:float,d:Length,N:float)->float:
 def M_factor(N:float,epsilon:float)->float:
     return 1 + 2 / (3 * N * (1 - epsilon))
 
-# TODO: porosity calculation at core and annulus?
+def reynold(rho: Derived, u: Derived, tau: float, porosity: float, d: Length, mu: Derived, D:Length, is_core: bool, extra: float)->float:
+    hydr_D = 0
+    if is_core:
+        hydr_D = 0.5 * d * (4 * extra ** 2 - np.pi) / (2 * (extra - 1) + np.pi / 2) #core
+        print("core hydr:", hydr_D)
+    else:
+        Aint = A_intercept(D,d)
+        N = float(D/d)
+        n_a = na(N)
+        Theta_ex = (2 / n_a) * (np.pi - n_a * extra)
+        # print("Theta_ex:",Theta_ex*180/np.pi)
+        theta_adj = extra + 0.5 * Theta_ex
+        hydr_D = 4*(d ** 2 * theta_adj * (2 * N - 1) / 4 - (np.pi * 0.25 * d ** 2 - Aint)) / (
+                    theta_adj * D + 0.5 * np.pi * d + Theta_ex * (D / 2 - d / 2))
+        # print("annulus hydr:",hydr_D)
+    vx = tau*u/porosity
+    return rho*vx*hydr_D/mu
+
+# TODO: Differing porosity calculation at core and annulus
+# TODO: define annulus hydr
 
 if __name__ == "__main__":
     D = Length(1, Length.inch)
     N_calcs = 100
     Ns = np.linspace(2.05, 2.95, N_calcs)
     ds = [D / N for N in Ns]
+    print("ds:",ds)
     ns_ls = [Guo_params(N, d) for N, d in zip(Ns, ds)]
     print(ns_ls)
     ns = [nl[0] for nl in ns_ls]
     print(ns)
     ls = [nl[1] for nl in ns_ls]
-    [print(2 * l / d) for l, d in zip(ls, ds)]
+    # [print(2 * l / d) for l, d in zip(ls, ds)]
     tau_as = [tau_ann(l, d) for l, d in zip(ls, ds)]
     tau_cs = [tau_core(l, d) for l, d in zip(ls, ds)]
     n_as = [na(N) for N in Ns]
@@ -228,6 +367,11 @@ if __name__ == "__main__":
     Dh_cs = [Dh_core(D, d, n, n_a) for d, n, n_a in zip(ds, ns, n_as)]
     print("dh core:", Dh_cs)
     poroses = [poros_Guo(N) for N in Ns]
+
+    # Acores = [Acore(D,d,n,na) for d,n,na in zip(ds,ns,n_as)]
+    # print("Acores:",Acores)
+    # Pcores = [Pcore(Ac,d) for Ac,d in zip(Acores,ds)]
+    # print("Pcores:",Pcores)
 
     rho = Derived(998.2, units={Unit(Mass, Mass.kg): 1, Unit(Length, Length.m): -3})
     mu = Derived(0.001003,
@@ -239,9 +383,10 @@ if __name__ == "__main__":
     area = np.pi * D ** 2 / 4
     u = mdot / (rho * area)
 
-    cf1 = 64
-    cf2 = 1
-    cD = 0.62
+    #From wikipedia...
+    cf1 = 0.664
+    cf2 = 0.5
+    cD = 0.6+0.85 #avg discharge coef * 2
 
     # A_E = 150
     # B_E = 1.75
@@ -254,39 +399,39 @@ if __name__ == "__main__":
     A_Es = [aebe[0] for aebe in aebes]
     B_Es = [aebe[1] for aebe in aebes]
 
-    alpha_cores = [alpha(cf1, cf2, rho, tau, mu, u, Dh, poros) for tau, Dh, poros in zip(tau_cs, Dh_cs, poroses)]
+    expand_cores = [expand_factor_core(d,n,D,n_a) for d,n,n_a in zip(ds,ns,n_as)]
+    print("expansion factors:",expand_cores)
+
+    Res_core = [reynold(rho, u, tau, por, d, mu, D, True, a) for tau,por,d,a in zip(tau_cs, poroses, ds, expand_cores)]
+    Res_ann = [reynold(rho, u, tau, por, d, mu, D, False, theta_ann(D/d)) for tau, por, d in zip(tau_as, poroses, ds)]
+    [print("Reynold core:",rec,"annulus:",rea) for rec,rea in zip(Res_core,Res_ann)]
+
+    alpha_cores = [alpha_new(cf1, cf2, rho, tau, mu, u, d, poros, a) for tau, d, poros, a in zip(tau_cs, ds, poroses, expand_cores)]
+    # alpha_cores = [alpha(cf1, cf2, rho, tau, mu, u, Dh, poros) for tau, Dh, poros, a in zip(tau_cs, Dh_cs, poroses, expand_cores)]
     Aw_cores = [Aw_derive(alph,epsilon,d,N) for alph,epsilon,d,N in zip(alpha_cores,poroses,ds,Ns)]
-    alpha_anns = [alpha(cf1, cf2, rho, tau, mu, u, Dh, poros) for tau, Dh, poros in zip(tau_as, Dh_as, poroses)]
+    alpha_anns = [alpha_ann(cf1, cf2, rho, tau, mu, u, d, poros) for tau, d, poros in zip(tau_as, ds, poroses)]
+    # alpha_anns = [alpha(cf1, cf2, rho, tau, mu, u, Dh, poros) for tau, Dh, poros, a in zip(tau_as, Dh_as, poroses, expand_cores)]
     Aw_anns = [Aw_derive(alph,epsilon,d,N) for alph,epsilon,d,N in zip(alpha_anns,poroses,ds,Ns)]
 
     Ergun_alphas = [Ergun_alpha(A_E, poros, d) for A_E, poros, d in zip(A_Es, poroses, ds)]
 
-    beta_cores = [beta(cD, tau, Dh, poros) for tau, Dh, poros in zip(tau_cs, Dh_cs, poroses)]
+    beta_cores = [beta_new(cD, tau, l, poros) for tau, l, poros in zip(tau_cs, ls, poroses)]
     Bw_cores = [Bw_derive(bet,epsilon,d,N) for bet,epsilon,d,N in zip(beta_cores,poroses,ds,Ns)]
-    beta_anns = [beta(cD, tau, Dh, poros) for tau, Dh, poros in zip(tau_as, Dh_as, poroses)]
+    beta_anns = [beta_new(cD, tau, l, poros) for tau, l, poros in zip(tau_as, ls, poroses)]
     Bw_anns = [Bw_derive(bet,epsilon,d,N) for bet,epsilon,d,N in zip(beta_anns,poroses,ds,Ns)]
 
     Ergun_betas = [Ergun_beta(B_E, poros, d) for B_E, poros, d in zip(B_Es, poroses, ds)]
 
+    ann_fs = [2/N - 1/N**2 for N in Ns]
+    weight_aws = [af*awa + (1-af)*awc for af,awa,awc in zip(ann_fs, Aw_anns, Aw_cores)]
+    weight_bws = [af*bwa + (1-af)*bwc for af,bwa,bwc in zip(ann_fs, Bw_anns, Bw_cores)]
 
-    #
-    # for i in range(N_calcs):
-    #     print(Ns[i])
-    #     # # print("alpha core:", alpha_cores[i])
-    #     # # print("alpha ann:", alpha_anns[i])
-    #     # print("alpha total:", alpha_anns[i]+alpha_cores[i])
-    #     # print("alpha ergun:", Ergun_alphas[i])
-    #     # # print("beta core:", beta_cores[i])
-    #     # # print("beta ann:", beta_anns[i])
-    #     # print("beta total:", beta_anns[i]+beta_cores[i])
-    #     # print("beta ergun:", Ergun_betas[i])
-    #     print("Aw me:",Aw_cores[i]+Aw_anns[i])
-    #     print("Aw cheng:", A_Es[i]/M_factor(Ns[i],poroses[i])**2)
-    #     print("Bw me:",Bw_cores[i]+Bw_anns[i])
-    #     print("Bw cheng:", B_Es[i]/M_factor(Ns[i],poroses[i]))
+
     fig1, ax1 = plt.subplots()
     Cheng_Aws = [A_E/M_factor(N,poros)**2 for A_E,N,poros in zip(A_Es,Ns,poroses)]
-    ax1.plot(Ns,[sum(aws) for aws in zip(Aw_cores,Aw_anns)],label="Flow paths")
+    ax1.plot(Ns,weight_aws,label="Flow paths (weight avg)")
+    ax1.plot(Ns, Aw_cores, label="Core")
+    ax1.plot(Ns, Aw_anns, label="Annulus")
     ax1.plot(Ns,Cheng_Aws,label="Cheng")
     ax1.set_xlabel("D/d ratio")
     ax1.set_ylabel("Aw")
@@ -295,9 +440,43 @@ if __name__ == "__main__":
 
     fig2, ax2 = plt.subplots()
     Cheng_Bws = [B_E / M_factor(N, poros) for B_E, N, poros in zip(B_Es, Ns, poroses)]
-    ax2.plot(Ns,[sum(bws) for bws in zip(Bw_cores,Bw_anns)],label="Flow paths")
+    ax2.plot(Ns,weight_bws,label="Flow paths (weight avg)")
+    ax2.plot(Ns, Bw_cores, label="Core")
+    ax2.plot(Ns, Bw_anns, label="Annulus")
     ax2.plot(Ns, Cheng_Bws,label="Cheng")
     ax2.set_xlabel("D/d ratio")
     ax2.set_ylabel("Bw")
     ax2.legend()
     plt.show()
+
+    # fig3, ax3 = plt.subplots()
+    # # ax3.plot(Ns, ls, label="layer heights")
+    # # ax3.plot(Ns, ns, label="number per layer")
+    # ax3.plot(Ns, tau_as, label="annular tortuosity ")
+    # ax3.plot(Ns, tau_cs,label="core tortuosity")
+    # ax3.set_xlabel("D/d ratio")
+    # ax3.set_ylabel("quantity")
+    # ax3.legend()
+    # plt.show()
+
+
+if __name__ == "__ain__":
+    D = Length(1,Length.m)
+    N = 2.7014
+    d = D/N
+    print("d:",d)
+    n = 5
+    n_a = na(N)
+    print("na:",n_a)
+    At = Atotal_core(D,d,n,n_a)
+    print("AT:",At)
+    print("max a:",np.pi*D**2/4)
+    path_a = Apath_core(d)
+    print("calcpath:",path_a)
+    N_paths = At/path_a
+    print(N_paths)
+    N_guess = n-1
+    Aguess = At/N_guess
+    print("Aguess:",Aguess)
+    a = np.sqrt((Aguess+np.pi*d**2/4)/d**2)
+    print("increase factor:",a)

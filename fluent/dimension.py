@@ -240,6 +240,11 @@ class Dimension(ABC):
             raise Exception("Must be dimensionless to take inverse cosine.")
         return Angle(np.arccos(self.value),Angle.rad)
 
+    def arctan(self) -> 'Angle':
+        if not self.is_dimless():
+            raise Exception("Must be dimensionless to take inverse tangent.")
+        return Angle(np.arctan(self.value),Angle.rad)
+
     def tan(self) -> float:
         if not self.is_dimless():
             raise Exception("Must be dimensionless to take tangent.")
