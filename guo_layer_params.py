@@ -112,7 +112,7 @@ if __name__ == "__main__":
 
             rel_err = 2*abs(vol_avg_por - porosity)/(vol_avg_por + porosity)
 
-            csv.write(D_str+','+Dp_str+','+str(N)+','+str(vol_avg_por)+','+str(porosity)+','+str(rel_err)+','+str(n_avg)+','+str(l_avg)+'\n')
+            csv.write(D_str+','+str(Dp)+','+str(N)+','+str(vol_avg_por)+','+str(porosity)+','+str(rel_err)+','+str(n_avg)+','+str(l_avg)+'\n')
             print()
 
     csv.close()

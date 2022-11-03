@@ -157,7 +157,7 @@ def alpha_new(cf1: float, cf2: float, rho: Derived, tau: float, mu: Derived, u: 
         2 * (a**2 - np.pi/4) * phi ** (2 - cf2) * d * hydr_D**cf2)
 
 def alpha_ann(cf1: float, cf2: float, rho: Derived, tau: float, mu: Derived, u: Derived, d: Length,
-          phi: float) -> Derived:
+          phi: float, D: Length) -> Derived:
     Aint = A_intercept(D,d)
     N = float(D/d)
     theta = theta_ann(N)
@@ -168,7 +168,7 @@ def alpha_ann(cf1: float, cf2: float, rho: Derived, tau: float, mu: Derived, u: 
     return cf1 * (theta_adj*D + 0.5*np.pi*d) * rho ** (1 - cf2) * tau ** (2 - cf2) * mu ** (cf2 - 1) * u ** (1 - cf2) / (
         2 * (d**2*theta_adj*(2*N-1)/4 - (np.pi*0.25*d**2 - Aint)) * phi ** (2 - cf2) * hydr_D**cf2)
 
-def expand_factor_core(d: Length, n: int, D: Length, n_a: int)->float:
+def expand_factor_core(d: Length, n: float, D: Length, n_a: int)->float:
     """
     Area expansion factor
     :param d:
@@ -348,6 +348,122 @@ def reynold(rho: Derived, u: Derived, tau: float, porosity: float, d: Length, mu
 # TODO: define annulus hydr
 
 if __name__ == "__main__":
+    Ds = []
+    ds = []
+    Ns = []
+    poroses = []
+    ns = []
+    ls = []
+    all_params = []
+    with open("../guo_layers.csv", 'r') as csv:
+        csv.readline()
+        for line in csv:
+            params = [float(item.strip()) for item in line.split(',')]
+            if params[5]<0.05: #Relative error is less than 10%
+                all_params.append(params)
+
+        csv.close()
+
+    all_params = sorted(all_params, key=lambda x: x[2])
+    for params in all_params:
+        Ds.append(Length(params[0], Length.inch))
+        ds.append(Length(params[1], Length.inch))
+        Ns.append(params[2])
+        poroses.append(params[4])  # use pygran volume average. For Guo calculated, use 4
+        ns.append(params[6])
+        ls.append(Length(params[7], Length.inch))
+        tau_as = [tau_ann(l, d) for l, d in zip(ls, ds)]
+        tau_cs = [tau_core(l, d) for l, d in zip(ls, ds)]
+        n_as = [na(N) for N in Ns]
+
+    rho = Derived(998.2, units={Unit(Mass, Mass.kg): 1, Unit(Length, Length.m): -3})
+    mu = Derived(0.001003,
+                 units={Unit(Mass, Mass.kg): 1, Unit(Length, Length.m): -1, Unit(Time, Time.s): -1})
+
+    vol = Volume(1, Volume.gal)
+    duration = Time(1, Time.minute)
+    mdot = rho * vol / duration
+    areas = [np.pi * D ** 2 / 4 for D in Ds]
+    us = [mdot / (rho * area) for area in areas]
+
+    #From wikipedia...
+    cf1 = 0.664
+    cf2 = 0.5
+    cD = 0.6+0.85 #avg discharge coef * 2
+
+    # A_E = 150
+    # B_E = 1.75
+    a1 = 185
+    a2 = 17
+    b1 = 1.3
+    b2 = .03
+    m = 2
+    aebes = [A_E_B_E(poros,N,a1,a2,b1,b2,m) for poros,N in zip(poroses, Ns)]
+    A_Es = [aebe[0] for aebe in aebes]
+    B_Es = [aebe[1] for aebe in aebes]
+
+    expand_cores = [expand_factor_core(d,n,D,n_a) for d,n,D,n_a in zip(ds,ns,Ds,n_as)]
+    print("expansion factors:",expand_cores)
+
+    Res_core = [reynold(rho, u, tau, por, d, mu, D, True, a) for u,tau,por,d,D,a in zip(us, tau_cs, poroses, ds, Ds, expand_cores)]
+    Res_ann = [reynold(rho, u, tau, por, d, mu, D, False, theta_ann(float(D/d))) for u, tau, por, d, D in zip(us, tau_as, poroses, ds, Ds)]
+    [print("Reynold core:",rec,"annulus:",rea) for rec,rea in zip(Res_core,Res_ann)]
+
+    alpha_cores = [alpha_new(cf1, cf2, rho, tau, mu, u, d, poros, a) for tau, u, d, poros, a in zip(tau_cs, us, ds, poroses, expand_cores)]
+    # alpha_cores = [alpha(cf1, cf2, rho, tau, mu, u, Dh, poros) for tau, Dh, poros, a in zip(tau_cs, Dh_cs, poroses, expand_cores)]
+    Aw_cores = [Aw_derive(alph,epsilon,d,N) for alph,epsilon,d,N in zip(alpha_cores,poroses,ds,Ns)]
+    alpha_anns = [alpha_ann(cf1, cf2, rho, tau, mu, u, d, poros, D) for tau, u, d, poros,D in zip(tau_as, us, ds, poroses,Ds)]
+    # alpha_anns = [alpha(cf1, cf2, rho, tau, mu, u, Dh, poros) for tau, Dh, poros, a in zip(tau_as, Dh_as, poroses, expand_cores)]
+    Aw_anns = [Aw_derive(alph,epsilon,d,N) for alph,epsilon,d,N in zip(alpha_anns,poroses,ds,Ns)]
+
+    Ergun_alphas = [Ergun_alpha(A_E, poros, d) for A_E, poros, d in zip(A_Es, poroses, ds)]
+
+    beta_cores = [beta_new(cD, tau, l, poros) for tau, l, poros in zip(tau_cs, ls, poroses)]
+    Bw_cores = [Bw_derive(bet,epsilon,d,N) for bet,epsilon,d,N in zip(beta_cores,poroses,ds,Ns)]
+    beta_anns = [beta_new(cD, tau, l, poros) for tau, l, poros in zip(tau_as, ls, poroses)]
+    Bw_anns = [Bw_derive(bet,epsilon,d,N) for bet,epsilon,d,N in zip(beta_anns,poroses,ds,Ns)]
+
+    Ergun_betas = [Ergun_beta(B_E, poros, d) for B_E, poros, d in zip(B_Es, poroses, ds)]
+
+    ann_fs = [2/N - 1/N**2 for N in Ns]
+    weight_aws = [af*awa + (1-af)*awc for af,awa,awc in zip(ann_fs, Aw_anns, Aw_cores)]
+    weight_bws = [af*bwa + (1-af)*bwc for af,bwa,bwc in zip(ann_fs, Bw_anns, Bw_cores)]
+
+
+    fig1, ax1 = plt.subplots()
+    Cheng_Aws = [A_E/M_factor(N,poros)**2 for A_E,N,poros in zip(A_Es,Ns,poroses)]
+    ax1.scatter(Ns,weight_aws,label="Flow paths (weight avg)")
+    # ax1.scatter(Ns, Aw_cores, label="Core")
+    # ax1.scatter(Ns, Aw_anns, label="Annulus")
+    ax1.plot(Ns,Cheng_Aws,label="Cheng",c='r')
+    ax1.set_xlabel("D/d ratio")
+    ax1.set_ylabel("Aw")
+    ax1.legend()
+    plt.show()
+
+    fig2, ax2 = plt.subplots()
+    Cheng_Bws = [B_E / M_factor(N, poros) for B_E, N, poros in zip(B_Es, Ns, poroses)]
+    ax2.scatter(Ns,weight_bws,label="Flow paths (weight avg)")
+    # ax2.scatter(Ns, Bw_cores, label="Core")
+    # ax2.scatter(Ns, Bw_anns, label="Annulus")
+    ax2.plot(Ns, Cheng_Bws,label="Cheng",c='r')
+    ax2.set_xlabel("D/d ratio")
+    ax2.set_ylabel("Bw")
+    ax2.legend()
+    plt.show()
+
+    # fig3, ax3 = plt.subplots()
+    # # ax3.plot(Ns, ls, label="layer heights")
+    # # ax3.plot(Ns, ns, label="number per layer")
+    # ax3.plot(Ns, tau_as, label="annular tortuosity ")
+    # ax3.plot(Ns, tau_cs,label="core tortuosity")
+    # ax3.set_xlabel("D/d ratio")
+    # ax3.set_ylabel("quantity")
+    # ax3.legend()
+    # plt.show()
+
+
+if __name__ == "__in__":
     D = Length(1, Length.inch)
     N_calcs = 100
     Ns = np.linspace(2.05, 2.95, N_calcs)
