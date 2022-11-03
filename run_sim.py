@@ -95,11 +95,14 @@ def go(sim_params: PD):
 
         # Let simulation settle before next insertion
 
-        sim.run(params['stages']['insertion'], params['dt'])
+        sim.run(params['stages']['insertion'] * 2, params['dt'])
         # TODO: for some reason, LIGGGHTS will insert more particles on each insert (increasing by parts_per_insert
         # TODO cont. : every time). The fix below does not help...
 
         parts_per_insert = 0
+
+    sim.run(params['stages']['insertion'] * 2, params['dt'])
+
 
 if __name__ == "__main__":
     # Retrieve command-line arguments. First element is always file name, we can skip that.
