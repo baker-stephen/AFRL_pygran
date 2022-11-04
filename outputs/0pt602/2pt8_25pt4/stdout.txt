@@ -203,13 +203,22 @@ step:  19200000
 step:  19300000
 step:  19400000
 step:  19500000
+step:  19600000
+step:  19700000
+step:  19800000
+step:  19900000
+step:  20000000
+step:  20100000
+step:  20200000
+step:  20300000
+step:  20400000
 Done converting to csvs
 
 All Pygran steps complete
 new write directory: outputs/0pt602/2pt8_25pt4/
 Beginning overall porosity determination and grid construction.
 Parameters received:
-../outputs/0pt602/2pt8_25pt4/particles19500000.csv
+../outputs/0pt602/2pt8_25pt4/particles/csvs/20450000.csv
 0.11023622047244094
 0.602
 0.0
