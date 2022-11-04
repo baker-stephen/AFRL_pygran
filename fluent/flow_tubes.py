@@ -463,7 +463,7 @@ if __name__ == "__main__":
     # plt.show()
 
 
-if __name__ == "__in__":
+if __name__ == "__ain__":
     D = Length(1, Length.inch)
     N_calcs = 100
     Ns = np.linspace(2.05, 2.95, N_calcs)
@@ -525,7 +525,7 @@ if __name__ == "__in__":
     alpha_cores = [alpha_new(cf1, cf2, rho, tau, mu, u, d, poros, a) for tau, d, poros, a in zip(tau_cs, ds, poroses, expand_cores)]
     # alpha_cores = [alpha(cf1, cf2, rho, tau, mu, u, Dh, poros) for tau, Dh, poros, a in zip(tau_cs, Dh_cs, poroses, expand_cores)]
     Aw_cores = [Aw_derive(alph,epsilon,d,N) for alph,epsilon,d,N in zip(alpha_cores,poroses,ds,Ns)]
-    alpha_anns = [alpha_ann(cf1, cf2, rho, tau, mu, u, d, poros) for tau, d, poros in zip(tau_as, ds, poroses)]
+    alpha_anns = [alpha_ann(cf1, cf2, rho, tau, mu, u, d, poros,D) for tau, d, poros in zip(tau_as, ds, poroses)]
     # alpha_anns = [alpha(cf1, cf2, rho, tau, mu, u, Dh, poros) for tau, Dh, poros, a in zip(tau_as, Dh_as, poroses, expand_cores)]
     Aw_anns = [Aw_derive(alph,epsilon,d,N) for alph,epsilon,d,N in zip(alpha_anns,poroses,ds,Ns)]
 
@@ -546,8 +546,8 @@ if __name__ == "__in__":
     fig1, ax1 = plt.subplots()
     Cheng_Aws = [A_E/M_factor(N,poros)**2 for A_E,N,poros in zip(A_Es,Ns,poroses)]
     ax1.plot(Ns,weight_aws,label="Flow paths (weight avg)")
-    ax1.plot(Ns, Aw_cores, label="Core")
-    ax1.plot(Ns, Aw_anns, label="Annulus")
+    ax1.plot(Ns, Aw_cores, label="Core", linestyle='dashed')
+    ax1.plot(Ns, Aw_anns, label="Annulus", linestyle='dashed')
     ax1.plot(Ns,Cheng_Aws,label="Cheng")
     ax1.set_xlabel("D/d ratio")
     ax1.set_ylabel("Aw")
@@ -557,8 +557,8 @@ if __name__ == "__in__":
     fig2, ax2 = plt.subplots()
     Cheng_Bws = [B_E / M_factor(N, poros) for B_E, N, poros in zip(B_Es, Ns, poroses)]
     ax2.plot(Ns,weight_bws,label="Flow paths (weight avg)")
-    ax2.plot(Ns, Bw_cores, label="Core")
-    ax2.plot(Ns, Bw_anns, label="Annulus")
+    ax2.plot(Ns, Bw_cores, label="Core", linestyle='dashed')
+    ax2.plot(Ns, Bw_anns, label="Annulus", linestyle='dashed')
     ax2.plot(Ns, Cheng_Bws,label="Cheng")
     ax2.set_xlabel("D/d ratio")
     ax2.set_ylabel("Bw")

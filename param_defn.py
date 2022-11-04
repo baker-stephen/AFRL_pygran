@@ -186,13 +186,14 @@ class PD:
         freq = 10 * 2 * np.pi
         period = 1 / freq
         shake_steps = period / dt
+        nTaps = 30
         # shake_steps = (1 / 20 * np.pi) / 2.5e-7
 
         # nsteps = period / dt
 
         # print((2* settle_steps + 15*shake_steps*2 + .5*settle_steps + 30*shake_steps + settle_steps)*self.num_inserts)
 
-        return int((3.5 * settle_steps + 60 * shake_steps) * self.num_inserts)
+        return int((4.5 * settle_steps + 1.5 * nTaps * shake_steps) * self.num_inserts + 2*settle_steps)
 
     def z0(self) -> float:
         return self.post_zs[self.ID_str][0]

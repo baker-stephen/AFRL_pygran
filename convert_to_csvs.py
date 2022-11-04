@@ -23,7 +23,7 @@ def go(atom_count: int, final_step: int, source_dir: str):
     except OSError as error:
         print("Directory '%s' can not be created. Error: %s\n" % (base_dir+'/csvs',str(error)))
     box_bounds = []
-    for step in range(50000, final_step, 50000):
+    for step in range(50000, final_step+1, 50000):
         positions = []
         if step % 100000 == 0:
             print("step: ", step)
