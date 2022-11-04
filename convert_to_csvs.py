@@ -14,7 +14,7 @@ def output_csv(postions: list, tstep: int, base: str, zfill: int):
 
 
 def go(atom_count: int, final_step: int, source_dir: str):
-
+    final_step = final_step-final_step%50000
     zfill = len(str(final_step))
     base_dir = source_dir[:source_dir.rindex("/")+1]
     try:
@@ -23,7 +23,7 @@ def go(atom_count: int, final_step: int, source_dir: str):
     except OSError as error:
         print("Directory '%s' can not be created. Error: %s\n" % (base_dir+'/csvs',str(error)))
     box_bounds = []
-    for step in range(50000, final_step+1, 50000):
+    for step in range(final_step, 49999, -50000):
         positions = []
         if step % 100000 == 0:
             print("step: ", step)
@@ -36,6 +36,7 @@ def go(atom_count: int, final_step: int, source_dir: str):
                     box_bounds.append([float(b) for b in read.readline().split()])
                 else:
                     read.readline()
+            atom_count = max(atom_count,this_atom_count)
             for i in range(atom_count):
                 if i < this_atom_count:
                     positions.append([])
