@@ -11,7 +11,8 @@ def go(params: PD):
     print("Parameters received:")
     #Since output is only written every 50000 steps, the final recorded position of the particles can be found via:
     final_step_out = params.final_step() - (params.final_step() % 50000)
-    import_csv = '../'+params.out_dir+'csvs/particles'+str(final_step_out)+'.csv'
+    # import_csv = '../'+params.out_dir+'csvs/particles'+str(final_step_out)+'.csv'
+    import_csv = params.out_dir + 'csvs/particles' + str(final_step_out) + '.csv'
     print(import_csv)
     Dp = params.DP
     print(Dp)
