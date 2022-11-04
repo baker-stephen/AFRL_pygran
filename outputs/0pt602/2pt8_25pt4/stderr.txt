@@ -1,0 +1,14 @@
+/home/stbaker/afrl/AFRL_pygran/cy/plotme_sin.py:129: IntegrationWarning: The maximum number of subdivisions (50) has been achieved.
+  If increasing the limit yields no improvement it is advised to analyze 
+  the integrand in order to determine the difficulties.  If the position of a 
+  local difficulty can be determined (singularity, discontinuity) one will 
+  probably gain from splitting up the interval and calling the integrator 
+  on the subranges.  Perhaps a special-purpose integrator should be used.
+  fit_sin_cos_integ = quad(f1, 0.0, pipe_in_rad)
+/home/stbaker/afrl/AFRL_pygran/cy/plotme_sin.py:154: IntegrationWarning: The maximum number of subdivisions (50) has been achieved.
+  If increasing the limit yields no improvement it is advised to analyze 
+  the integrand in order to determine the difficulties.  If the position of a 
+  local difficulty can be determined (singularity, discontinuity) one will 
+  probably gain from splitting up the interval and calling the integrator 
+  on the subranges.  Perhaps a special-purpose integrator should be used.
+  fit_sin_cos_integ = quad(f1, 0.0, float(ID) / 2)
