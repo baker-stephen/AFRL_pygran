@@ -24,7 +24,8 @@ if __name__ == "__main__":
     # Initialize the output directory
     # params.output_dir()
 
-    params.out_dir = 'outputs/0pt602/2pt8_25pt4/sim_out_10:58:40_30-10-2022'
+
+    params.out_dir = 'outputs/0pt602/2pt8_25pt4/sim_out_9:25:5_3-11-2022'
 
     wrt_dir = params.out_dir[:params.out_dir.rfind('/') + 1]
 

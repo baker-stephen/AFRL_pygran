@@ -1,11 +1,11 @@
-out_dir: outputs/0pt602/2pt8_25pt4/sim_out_10:58:40_30-10-2022
+out_dir: outputs/0pt602/2pt8_25pt4/sim_out_9:25:5_3-11-2022
 
 
 Simulation Complete!
 
 
-now out_dir: outputs/0pt602/2pt8_25pt4/sim_out_10:58:40_30-10-2022
-OG out_dir: outputs/0pt602/2pt8_25pt4/sim_out_10:58:40_30-10-2022
+now out_dir: outputs/0pt602/2pt8_25pt4/sim_out_9:25:5_3-11-2022
+OG out_dir: outputs/0pt602/2pt8_25pt4/sim_out_9:25:5_3-11-2022
 Directory 'outputs/0pt602/2pt8_25pt4/csvs' created successfully
 
 step:  100000
@@ -126,13 +126,90 @@ step:  11500000
 step:  11600000
 step:  11700000
 step:  11800000
+step:  11900000
+step:  12000000
+step:  12100000
+step:  12200000
+step:  12300000
+step:  12400000
+step:  12500000
+step:  12600000
+step:  12700000
+step:  12800000
+step:  12900000
+step:  13000000
+step:  13100000
+step:  13200000
+step:  13300000
+step:  13400000
+step:  13500000
+step:  13600000
+step:  13700000
+step:  13800000
+step:  13900000
+step:  14000000
+step:  14100000
+step:  14200000
+step:  14300000
+step:  14400000
+step:  14500000
+step:  14600000
+step:  14700000
+step:  14800000
+step:  14900000
+step:  15000000
+step:  15100000
+step:  15200000
+step:  15300000
+step:  15400000
+step:  15500000
+step:  15600000
+step:  15700000
+step:  15800000
+step:  15900000
+step:  16000000
+step:  16100000
+step:  16200000
+step:  16300000
+step:  16400000
+step:  16500000
+step:  16600000
+step:  16700000
+step:  16800000
+step:  16900000
+step:  17000000
+step:  17100000
+step:  17200000
+step:  17300000
+step:  17400000
+step:  17500000
+step:  17600000
+step:  17700000
+step:  17800000
+step:  17900000
+step:  18000000
+step:  18100000
+step:  18200000
+step:  18300000
+step:  18400000
+step:  18500000
+step:  18600000
+step:  18700000
+step:  18800000
+step:  18900000
+step:  19000000
+step:  19100000
+step:  19200000
+step:  19300000
+step:  19400000
+step:  19500000
 Done converting to csvs
 
 All Pygran steps complete
 new write directory: outputs/0pt602/2pt8_25pt4/
 Beginning overall porosity determination and grid construction.
 Parameters received:
-../outputs/0pt602/2pt8_25pt4/particles11850000.csv
+../outputs/0pt602/2pt8_25pt4/particles19500000.csv
 0.11023622047244094
 0.602
 0.0
