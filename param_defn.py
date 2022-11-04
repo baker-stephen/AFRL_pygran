@@ -193,7 +193,7 @@ class PD:
 
         # print((2* settle_steps + 15*shake_steps*2 + .5*settle_steps + 30*shake_steps + settle_steps)*self.num_inserts)
 
-        return int((4.5 * settle_steps + 1.5 * nTaps * shake_steps) * self.num_inserts + 2*settle_steps)
+        return int((4.5 * settle_steps + 2 * nTaps * shake_steps) * self.num_inserts + 2*settle_steps)
 
     def z0(self) -> float:
         return self.post_zs[self.ID_str][0]
