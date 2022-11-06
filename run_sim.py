@@ -1,6 +1,7 @@
 from pygran import simulation
 from pygran.params import steel, glass
 import numpy as np
+import convert_to_csvs
 
 import sys
 
@@ -121,3 +122,5 @@ if __name__ == "__main__":
     print("out_dir: %s" % params.out_dir)
 
     go(params)
+
+    convert_to_csvs.go(params.N_spheres(),params.final_step(),params.out_dir,'_n'+str(params.num_inserts))

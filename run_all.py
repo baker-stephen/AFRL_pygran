@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
 
     # Convert the output to Paraview-compatible and readable csvs
-    convert_to_csvs.go(params.N_spheres(), params.final_step(), originalOutDir)  # TODO: test new csvs method
+    convert_to_csvs.go(params.N_spheres(), params.final_step(), originalOutDir)
 
     print("\nAll Pygran steps complete")
 

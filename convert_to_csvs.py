@@ -2,8 +2,8 @@ import os
 
 #TODO: Comment this file
 
-def output_csv(postions: list, tstep: int, base: str, zfill: int):
-    with open(base+'csvs/particles' + str(tstep).zfill(zfill) + '.csv', 'w') as write:
+def output_csv(postions: list, tstep: int, base: str, zfill: int, name_mod: str):
+    with open(base+'csvs'+name_mod+'/particles' + str(tstep).zfill(zfill) + '.csv', 'w') as write:
         write.write("x,y,z\n")
         for part in range(len(postions)):
             if len(postions[part]) < 3:
@@ -13,7 +13,7 @@ def output_csv(postions: list, tstep: int, base: str, zfill: int):
         write.close()
 
 
-def go(atom_count: int, final_step: int, source_dir: str):
+def go(atom_count: int, final_step: int, source_dir: str, name_mod=''):
     final_step = final_step-final_step%50000
     zfill = len(str(final_step))
     base_dir = source_dir[:source_dir.rindex("/")+1]
@@ -46,7 +46,7 @@ def go(atom_count: int, final_step: int, source_dir: str):
                     positions[i].append(float(data[4]))
                 else:
                     positions.append([box_bounds[0][0], box_bounds[1][0], box_bounds[2][0]])
-            output_csv(positions, step, base_dir, zfill)
+            output_csv(positions, step, base_dir, zfill, name_mod)
             read.close()
 
     print("Done converting to csvs")
