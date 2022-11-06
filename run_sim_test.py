@@ -56,12 +56,13 @@ def go(sim_params: PD):
 
     for i in range(sim_params.num_inserts):
         # Insert a group of particles
-        insert = sim.insert(species=1, value=(parts_per_insert - i * parts_per_insert), region=sim_params.insert(),
+        insert = sim.insert(species=1, value=(parts_per_insert - sim.get_natoms()), region=sim_params.insert(),
                             args={'orientation': 'random'})
 
         # Run insertion stage, let the particles settle into the cylinder
         sim.run(params['stages']['insertion'] * 2, params['dt'])
         sim.remove(insert)
+
 
     #     # Setup shaking:
     #     freq = 10 * 2 * np.pi
