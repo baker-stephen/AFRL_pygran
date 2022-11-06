@@ -56,12 +56,9 @@ def go(sim_params: PD):
 
     for i in range(sim_params.num_inserts):
         # Insert a group of particles
-        if i==0:
-            insert = sim.insert(species=1, value=(parts_per_insert - sim.get_natoms()), region=sim_params.insert(),
-                                args={'orientation': 'random'})
-        else:
-            insert = sim.insert(species=1, value=(2*parts_per_insert - sim.get_natoms()), region=sim_params.insert(),
-                                args={'orientation': 'random'})
+
+        insert = sim.insert(species=1, value=((i+1)*parts_per_insert - sim.get_natoms()), region=sim_params.insert(),
+                            args={'orientation': 'random'})
 
         # Run insertion stage, let the particles settle into the cylinder
         sim.run(params['stages']['insertion'] * 2, params['dt'])
