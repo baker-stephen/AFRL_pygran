@@ -56,7 +56,7 @@ def go(sim_params: PD):
 
     for i in range(sim_params.num_inserts):
         # Insert a group of particles
-        insert = sim.insert(species=1, value=parts_per_insert, region=sim_params.insert(),
+        insert = sim.insert(species=1, value=((i+1)*parts_per_insert - sim.get_natoms()), region=sim_params.insert(),
                             args={'orientation': 'random'})
 
         # Run insertion stage, let the particles settle into the cylinder
@@ -96,10 +96,6 @@ def go(sim_params: PD):
         # Let simulation settle before next insertion
 
         sim.run(params['stages']['insertion'] * 2, params['dt'])
-        # TODO: for some reason, LIGGGHTS will insert more particles on each insert (increasing by parts_per_insert
-        # TODO cont. : every time). The fix below does not help...
-
-        parts_per_insert = 0
 
     sim.run(params['stages']['insertion'] * 2, params['dt'])
 
