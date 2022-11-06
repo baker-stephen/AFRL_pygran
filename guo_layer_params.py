@@ -2,13 +2,13 @@ import numpy as np
 from param_defn import PD
 
 ID_DP_dict = {'0.26': ['0.7/25.4', '0.8/25.4', '0.9/25.4', '0.85/25.4', '1/25.4', '1.1/25.4', '1.2/25.4', '1.5/25.4', '1.7/25.4'],
-              '0.602': ['1/4', '1/8', '1/16', '3/16', '7/16'], #Not ready yet: '3/32', '2.8/25.4',
+              '0.602': ['1/4', '1/8', '1/16', '3/16', '7/16', '2.8/25.4',], #Not ready yet: '3/32'
               '1.029': ['1/4', '1/8', '3/16', '3/32', '5/16', '7/16', '15/32'], #Not ready yet: '5/32',
               '1.59': ['1/4', '1/8', '3/16', '5/16', '5/32', '7/16', '7/32', '9/32', '9/64', '15/64']}
 
 if __name__ == "__main__":
     csv = open('guo_layers.csv', 'w')
-    csv.write("D,Dp,N,por pg,por nl,rel err,n,l\n")
+    csv.write("D,Dp,N,por pg,por nl,rel err,n,n_alt,l,l_alt\n")
 
     for D_str in ID_DP_dict.keys():
         for Dp_str in ID_DP_dict[D_str]:
@@ -83,6 +83,33 @@ if __name__ == "__main__":
             n_avg = np.mean(ns)
             print("n avg:",n_avg)
 
+            #Alternate n calc method:
+            # n_alts_counter = 0
+            # min_zi = 0
+            # for pi,xyz in enumerate(positions):
+            #     z = xyz[2]
+            #     zi = min_zi
+            #     min_zi_set = False
+            #     while zi<len(positions):
+            #         z_other = positions[zi][2]
+            #         if z-z_other < Dp/4:
+            #             zi += 1
+            #             continue
+            #         elif z_other-z > Dp/4:
+            #             break
+            #         elif not min_zi_set:
+            #             min_zi = zi
+            #             min_zi_set = True
+            #
+            #         n_alts_counter += 1
+            #         zi+=1
+            n_std = np.std(ns)
+            n_alts = []
+            for n in ns:
+                if abs(n - n_avg) < n_std:
+                    n_alts.append(n)
+            n_alt = np.mean(n_alts)
+
             ls = []
             for i in range(1,len(layer_pos)-1):
                 prev = layer_pos[i][2] - layer_pos[i-1][2]
@@ -110,9 +137,11 @@ if __name__ == "__main__":
 
                 out_txt.close()
 
+            l_alt = 2*n_alt*Dp**3/(3*D**2*(1-vol_avg_por))
+
             rel_err = 2*abs(vol_avg_por - porosity)/(vol_avg_por + porosity)
 
-            csv.write(D_str+','+str(Dp)+','+str(N)+','+str(vol_avg_por)+','+str(porosity)+','+str(rel_err)+','+str(n_avg)+','+str(l_avg)+'\n')
+            csv.write(D_str+','+str(Dp)+','+str(N)+','+str(vol_avg_por)+','+str(porosity)+','+str(rel_err)+','+str(n_avg)+','+str(n_alt)+','+str(l_avg)+','+str(l_alt)+'\n')
             print()
 
     csv.close()
