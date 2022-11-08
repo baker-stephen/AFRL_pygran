@@ -25,8 +25,8 @@ def go(atom_count: int, final_step: int, source_dir: str, name_mod=''):
     box_bounds = []
     for step in range(final_step, 49999, -50000):
         positions = []
-        if step % 100000 == 0:
-            print("step: ", step)
+        # if step % 100000 == 0:
+            # print("step: ", step)
         with open(source_dir + '/traj/particles' + str(step) + '.vtk', 'r') as read:
             this_atom_count = 0
             for i in range(9):
