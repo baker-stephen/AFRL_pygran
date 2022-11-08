@@ -6,20 +6,28 @@ ID_DP_dict = {'0.26': ['0.7/25.4', '0.8/25.4', '0.9/25.4', '0.85/25.4', '1/25.4'
               '1.029': ['1/4', '1/8', '3/16', '3/32', '5/16', '7/16', '15/32'], #Not ready yet: '5/32',
               '1.59': ['1/4', '1/8', '3/16', '5/16', '5/32', '7/16', '7/32', '9/32', '9/64', '15/64']}
 
+# ID_DP_dict = {'0.26': ['0.8/25.4', '0.9/25.4', '0.85/25.4', '1/25.4', '1.1/25.4', '1.2/25.4', '1.5/25.4', '1.7/25.4'],
+#               '0.602': ['1/4', '3/16', '7/16',],
+#               '1.029': ['1/4', '3/16', '5/16', '7/16', '15/32',],}
+
 if __name__ == "__main__":
     csv = open('guo_layers.csv', 'w')
     csv.write("D,Dp,N,por pg,por nl,rel err,n,n_alt,l,l_alt\n")
 
+    base_dir = 'outputs/'
     for D_str in ID_DP_dict.keys():
+        ID_dir = base_dir + D_str.replace('.', 'pt') + '/'
         for Dp_str in ID_DP_dict[D_str]:
 
             print("D: "+D_str+", Dp: "+Dp_str)
 
-            params = PD(D_str, Dp_str)
+            params = PD(D_str,Dp_str,num_inserts=10)
 
-            params.output_dir()
+            out_dir = ID_dir + Dp_str.replace('.', 'pt').replace('/', '_')+'/'
 
-            wrt_dir = params.out_dir[:params.out_dir.rfind('/') + 1]
+            # params.output_dir()
+
+            # wrt_dir = params.out_dir[:params.out_dir.rfind('/') + 1]
 
             pipe_in_rad = params.ID / 2
             D = params.ID
@@ -42,10 +50,14 @@ if __name__ == "__main__":
             dz = (zM - z0) / (z_res + 1)
 
             positions = []
-            with open(wrt_dir+'particles.csv', 'r') as r:
+            final_csv = params.final_step()-params.final_step()%50000
+            # with open(out_dir+'csvs_n10/particles'+str(final_csv)+'.csv', 'r') as r:
+            with open(out_dir + 'particles.csv', 'r') as r:
                 r.readline()
                 for line in r:
                     xyz = [float(p) for p in line.split(",")]
+                    if xyz[2]<z0 or xyz[2]>zM:
+                        continue
                     positions.append(xyz)
                 r.close()
 
@@ -106,7 +118,7 @@ if __name__ == "__main__":
             n_std = np.std(ns)
             n_alts = []
             for n in ns:
-                if abs(n - n_avg) < n_std:
+                if abs(n - n_avg) <= n_std:
                     n_alts.append(n)
             n_alt = np.mean(n_alts)
 
@@ -127,7 +139,7 @@ if __name__ == "__main__":
 
             N = D/Dp
             vol_avg_por = -1
-            with open(wrt_dir+'outputs.txt', 'r') as out_txt:
+            with open(out_dir+'outputs.txt', 'r') as out_txt:
                 key_str = "volume averaged porosity: "
                 for line in out_txt:
                     if line.__contains__(key_str):

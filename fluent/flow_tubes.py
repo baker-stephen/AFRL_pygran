@@ -34,6 +34,8 @@ def A_intercept(D: Length, d: Length) -> Derived:
     :param D: Inner diameter of the tube
     :return: A_int (m^2)
     """
+    # print("D:",D)
+    # print("Dp:",d)
     r = d / 2
     R = D / 2 - r
     d1 = (2 * R ** 2 - r ** 2) / (2 * R)
@@ -330,7 +332,7 @@ def reynold(rho: Derived, u: Derived, tau: float, porosity: float, d: Length, mu
     hydr_D = 0
     if is_core:
         hydr_D = 0.5 * d * (4 * extra ** 2 - np.pi) / (2 * (extra - 1) + np.pi / 2) #core
-        print("core hydr:", hydr_D)
+        # print("core hydr:", hydr_D)
     else:
         Aint = A_intercept(D,d)
         N = float(D/d)
@@ -347,7 +349,7 @@ def reynold(rho: Derived, u: Derived, tau: float, porosity: float, d: Length, mu
 # TODO: Differing porosity calculation at core and annulus
 # TODO: define annulus hydr
 
-if __name__ == "__main__":
+if __name__ == "__ain__":
     Ds = []
     ds = []
     Ns = []
@@ -355,11 +357,12 @@ if __name__ == "__main__":
     ns = []
     ls = []
     all_params = []
-    with open("../guo_layers.csv", 'r') as csv:
+    with open("../guo_layers_n10.csv", 'r') as csv:
         csv.readline()
         for line in csv:
             params = [float(item.strip()) for item in line.split(',')]
-            # if params[5]<1: #Relative error is less than 10%
+            if params[2]<=2: #N<2, error in Aint calc
+                continue
             all_params.append(params)
 
         csv.close()
@@ -372,9 +375,12 @@ if __name__ == "__main__":
         poroses.append(params[5])  # use pygran volume average. For Guo calculated, use 4
         ns.append(params[7])
         ls.append(Length(params[9], Length.inch))
-        tau_as = [tau_ann(l, d) for l, d in zip(ls, ds)]
-        tau_cs = [tau_core(l, d) for l, d in zip(ls, ds)]
-        n_as = [na(N) for N in Ns]
+
+
+    tau_as = [tau_ann(l, d) for l, d in zip(ls, ds)]
+    tau_cs = [tau_core(l, d) for l, d in zip(ls, ds)]
+
+    n_as = [na(N) for N in Ns]
 
     rho = Derived(998.2, units={Unit(Mass, Mass.kg): 1, Unit(Length, Length.m): -3})
     mu = Derived(0.001003,
@@ -387,8 +393,8 @@ if __name__ == "__main__":
     us = [mdot / (rho * area) for area in areas]
 
     #From wikipedia...
-    cf1 = 0.664
-    cf2 = 0.5
+    cf1 = 64
+    cf2 = 1
     cD = 0.6+0.85 #avg discharge coef * 2
 
     # A_E = 150
@@ -403,11 +409,11 @@ if __name__ == "__main__":
     B_Es = [aebe[1] for aebe in aebes]
 
     expand_cores = [expand_factor_core(d,n,D,n_a) for d,n,D,n_a in zip(ds,ns,Ds,n_as)]
-    print("expansion factors:",expand_cores)
+    # print("expansion factors:",expand_cores)
 
     Res_core = [reynold(rho, u, tau, por, d, mu, D, True, a) for u,tau,por,d,D,a in zip(us, tau_cs, poroses, ds, Ds, expand_cores)]
     Res_ann = [reynold(rho, u, tau, por, d, mu, D, False, theta_ann(float(D/d))) for u, tau, por, d, D in zip(us, tau_as, poroses, ds, Ds)]
-    [print("Reynold core:",rec,"annulus:",rea) for rec,rea in zip(Res_core,Res_ann)]
+    # [print("Reynold core:",rec,"annulus:",rea) for rec,rea in zip(Res_core,Res_ann)]
 
     alpha_cores = [alpha_new(cf1, cf2, rho, tau, mu, u, d, poros, a) for tau, u, d, poros, a in zip(tau_cs, us, ds, poroses, expand_cores)]
     # alpha_cores = [alpha(cf1, cf2, rho, tau, mu, u, Dh, poros) for tau, Dh, poros, a in zip(tau_cs, Dh_cs, poroses, expand_cores)]
@@ -430,55 +436,55 @@ if __name__ == "__main__":
     weight_bws = [af*bwa + (1-af)*bwc for af,bwa,bwc in zip(ann_fs, Bw_anns, Bw_cores)]
 
 
-    # fig1, ax1 = plt.subplots()
-    # Cheng_Aws = [A_E/M_factor(N,poros)**2 for A_E,N,poros in zip(A_Es,Ns,poroses)]
-    # ax1.scatter(Ns,weight_aws,label="Flow paths (weight avg)")
-    # # ax1.scatter(Ns, Aw_cores, label="Core")
-    # # ax1.scatter(Ns, Aw_anns, label="Annulus")
+    fig1, ax1 = plt.subplots()
+    Cheng_Aws = [A_E/M_factor(N,poros)**2 for A_E,N,poros in zip(A_Es,Ns,poroses)]
+    ax1.scatter(Ns,weight_aws,label="Flow paths (weight avg)")
+    ax1.scatter(Ns, Aw_cores, label="Core")
+    ax1.scatter(Ns, Aw_anns, label="Annulus")
     # ax1.plot(Ns,Cheng_Aws,label="Cheng",c='r')
-    # ax1.set_xlabel("D/d ratio")
-    # ax1.set_ylabel("Aw")
-    # ax1.legend()
+    ax1.set_xlabel("D/d ratio")
+    ax1.set_ylabel("Aw")
+    ax1.legend()
+    plt.show()
+
+    fig2, ax2 = plt.subplots()
+    Cheng_Bws = [B_E / M_factor(N, poros) for B_E, N, poros in zip(B_Es, Ns, poroses)]
+    ax2.scatter(Ns,weight_bws,label="Flow paths (weight avg)")
+    ax2.scatter(Ns, Bw_cores, label="Core")
+    ax2.scatter(Ns, Bw_anns, label="Annulus")
+    # ax2.plot(Ns, Cheng_Bws,label="Cheng",c='r')
+    ax2.set_xlabel("D/d ratio")
+    ax2.set_ylabel("Bw")
+    ax2.legend()
+    plt.show()
+
+    # fig3, ax3 = plt.subplots()
+    # # ax3.plot(Ns, ls, label="layer heights")
+    # ax3.scatter(Ns, ns, label="number per layer")
+    # # ax3.plot(Ns, tau_as, label="annular tortuosity ")
+    # # ax3.plot(Ns, tau_cs,label="core tortuosity")
+    # ax3.set_xlabel("D/d ratio")
+    # ax3.set_ylabel("quantity")
+    # ax3.legend()
     # plt.show()
     #
-    # fig2, ax2 = plt.subplots()
-    # Cheng_Bws = [B_E / M_factor(N, poros) for B_E, N, poros in zip(B_Es, Ns, poroses)]
-    # ax2.scatter(Ns,weight_bws,label="Flow paths (weight avg)")
-    # # ax2.scatter(Ns, Bw_cores, label="Core")
-    # # ax2.scatter(Ns, Bw_anns, label="Annulus")
-    # ax2.plot(Ns, Cheng_Bws,label="Cheng",c='r')
-    # ax2.set_xlabel("D/d ratio")
-    # ax2.set_ylabel("Bw")
-    # ax2.legend()
+    # fig4, ax4 = plt.subplots()
+    # ax4.scatter(Ns, [l/d for l,d in zip(ls,ds)], label="layer heights")
+    # # ax4.plot(Ns, ns, label="number per layer")
+    # # ax3.plot(Ns, tau_as, label="annular tortuosity ")
+    # # ax3.plot(Ns, tau_cs,label="core tortuosity")
+    # ax4.set_xlabel("D/d ratio")
+    # ax4.set_ylabel("quantity")
+    # ax4.legend()
     # plt.show()
 
-    fig3, ax3 = plt.subplots()
-    # ax3.plot(Ns, ls, label="layer heights")
-    ax3.plot(Ns, ns, label="number per layer")
-    # ax3.plot(Ns, tau_as, label="annular tortuosity ")
-    # ax3.plot(Ns, tau_cs,label="core tortuosity")
-    ax3.set_xlabel("D/d ratio")
-    ax3.set_ylabel("quantity")
-    ax3.legend()
-    plt.show()
 
-    fig4, ax4 = plt.subplots()
-    ax4.plot(Ns, [l/d for l,d in zip(ls,ds)], label="layer heights")
-    # ax4.plot(Ns, ns, label="number per layer")
-    # ax3.plot(Ns, tau_as, label="annular tortuosity ")
-    # ax3.plot(Ns, tau_cs,label="core tortuosity")
-    ax4.set_xlabel("D/d ratio")
-    ax4.set_ylabel("quantity")
-    ax4.legend()
-    plt.show()
-
-
-if __name__ == "__ain__":
+if __name__ == "__main__":
     D = Length(1, Length.inch)
     N_calcs = 100
     Ns = np.linspace(2.05, 2.95, N_calcs)
     ds = [D / N for N in Ns]
-    print("ds:",ds)
+    # print("ds:",ds)
     ns_ls = [Guo_params(N, d) for N, d in zip(Ns, ds)]
     print(ns_ls)
     ns = [nl[0] for nl in ns_ls]
@@ -508,7 +514,6 @@ if __name__ == "__ain__":
     mdot = rho * vol / duration
     area = np.pi * D ** 2 / 4
     u = mdot / (rho * area)
-
     #From wikipedia...
     cf1 = 0.664
     cf2 = 0.5
