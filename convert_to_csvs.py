@@ -18,7 +18,7 @@ def go(atom_count: int, final_step: int, source_dir: str, name_mod=''):
     zfill = len(str(final_step))
     base_dir = source_dir[:source_dir.rindex("/")+1]
     try:
-        os.makedirs(base_dir + 'csvs/', exist_ok=True)
+        os.makedirs(base_dir + 'csvs'+name_mod+'/', exist_ok=True)
         print("Directory '%s' created successfully\n" % (base_dir+'csvs'))
     except OSError as error:
         print("Directory '%s' can not be created. Error: %s\n" % (base_dir+'/csvs',str(error)))
