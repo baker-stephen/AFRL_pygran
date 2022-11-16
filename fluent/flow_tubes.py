@@ -349,7 +349,7 @@ def reynold(rho: Derived, u: Derived, tau: float, porosity: float, d: Length, mu
 # TODO: Differing porosity calculation at core and annulus
 # TODO: define annulus hydr
 
-if __name__ == "__ain__":
+if __name__ == "__main__":
     Ds = []
     ds = []
     Ns = []
@@ -479,7 +479,7 @@ if __name__ == "__ain__":
     # plt.show()
 
 
-if __name__ == "__main__":
+if __name__ == "__ain__":
     D = Length(1, Length.inch)
     N_calcs = 100
     Ns = np.linspace(2.05, 2.95, N_calcs)

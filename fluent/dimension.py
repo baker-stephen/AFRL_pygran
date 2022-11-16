@@ -526,6 +526,7 @@ class Length(Dimension):
     m = "m"
     cm = "cm"
     mm = "mm"
+    nm = "nm"
     inch = "inch"
     mil = "mil"
     ft = "ft"
@@ -536,6 +537,7 @@ class Length(Dimension):
     ly = "ly"
     km = "km"
     micro = "micro"
+    ang = "ang"
 
     def __init__(self, value, unit):
         self.invalid = False
@@ -545,6 +547,8 @@ class Length(Dimension):
             self.value = cc.cm_m(value)
         elif unit == self.mm:
             self.value = cc.milli_(value)
+        elif unit == self.nm:
+            self.value = cc.nano_(value)
         elif unit == self.inch:
             self.value = cc.inch_m(value)
         elif unit == self.mil:
@@ -565,6 +569,8 @@ class Length(Dimension):
             self.value = cc.kilo_(value)
         elif unit == self.micro:
             self.value = cc.micro_(value)
+        elif unit == self.ang:
+            self.value = value*1e-10
         else:
             self.invalid = True
             raise ValueError("Invalid minor unit in Length.")
@@ -760,6 +766,7 @@ class TempEnergy(Derived):
     default = "J"
     J = "J"
     eV = "eV"
+    MeV = "MeV"
     K = "K"
     R = "R"
     C = "C"
@@ -774,6 +781,8 @@ class TempEnergy(Derived):
             self.value = value
         elif unit == self.eV:
             self.value = cc.eV_J(value)
+        elif unit == self.MeV:
+            self.value = cc.eV_J(cc.mega_(value))
         elif unit == self.K:
             self.value = value*cc.k_B
         elif unit == self.R:
