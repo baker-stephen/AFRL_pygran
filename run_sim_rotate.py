@@ -139,4 +139,4 @@ if __name__ == "__main__":
 
     go(params)
 
-    convert_to_csvs.go(params.N_spheres(),params.final_step(),params.out_dir,'_n'+str(params.num_inserts))
+    # convert_to_csvs.go(params.N_spheres(),params.final_step(),params.out_dir,'_n'+str(params.num_inserts))
