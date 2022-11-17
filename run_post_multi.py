@@ -5,54 +5,32 @@ import cy.run_post as rp
 
 from param_defn import PD
 
+ID_DP_dict_all = {
+    '0.26': ['0.7/25.4', '0.8/25.4', '0.9/25.4', '0.85/25.4', '1/25.4', '1.1/25.4', '1.2/25.4', '1.5/25.4', '1.7/25.4'],
+    '0.602': ['1/4', '1/8', '1/16', '3/16', '7/16', '2.8/25.4', '3/32'],
+    '1.029': ['1/4', '1/8', '3/16', '3/32', '5/16', '7/16', '15/32', '5/32', ],
+    '1.59': ['1/4', '1/8', '3/16', '5/16', '5/32', '7/16', '7/32', '9/32', '9/64', '15/64']}
+
+ID_DP_dict = {
+    '0.26': ['0.7/25.4', '0.8/25.4', '0.9/25.4', '0.85/25.4', '1/25.4', '1.1/25.4', '1.2/25.4', '1.5/25.4', '1.7/25.4'],
+    '0.602': ['3/32', '1/4', '1/8', '3/16', '7/16', '2.8/25.4', ], #1/16 still running
+    '1.029': ['5/32', '1/4', '1/8', '3/16', '3/32', '5/16', '7/16', '15/32',],
+    '1.59': ['1/4', '1/8', '3/16', '5/16', '7/16', '9/32']} #'5/32', '7/32', '9/64', '15/64' still running
+
 if __name__ == "__main__":
-
-    # Retrieve command-line arguments. First element is always file name, we can skip that.
-    args = sys.argv[1:]
-    print('args:', args)
-
-    if len(args) != 2 and len(args) != 3:
-        raise Exception("Please specify both ID and DP")
-
+    num_insertions = 10
     # Define the parameters of the simulation
-    if len(args) == 3:
-        num_insertions = int(str(args[2]).strip())
-        params = PD(str(args[0]).strip(), str(args[1]).strip(), num_inserts=num_insertions)
-    else:
-        params = PD(str(args[0]).strip(), str(args[1]).strip())
+    sys.stdout = open('outputs/stdout_post_mutli.txt', 'w')
+    sys.stderr = open('outputs/sterr_post_mutli.txt', 'w')
+    for Dstr in ID_DP_dict.keys():
+        for Dpstr in ID_DP_dict[Dstr]:
+            params = PD(Dstr, Dpstr, num_inserts=num_insertions)
 
-    # Initialize the output directory
-    # params.output_dir()
+            params.output_dir()
 
+            rp.go(params,name_mod="_n10")
 
-    params.out_dir = 'outputs/0pt602/2pt8_25pt4/sim_out_9:25:5_3-11-2022'
-
-    wrt_dir = params.out_dir[:params.out_dir.rfind('/') + 1]
-
-    print("write directory:", wrt_dir)
-
-    sys.stdout = open(wrt_dir + 'stdout.txt', 'w')
-    sys.stderr = open(wrt_dir + 'stderr.txt', 'w')
-
-    print("out_dir: %s" % params.out_dir)
-
-    originalOutDir = params.out_dir
-
-    # Run the simulation
-    # run_sim.go(params)
-
-    print("\n\nSimulation Complete!\n\n")
-
-    print("now out_dir: %s" % params.out_dir)
-
-    print("OG out_dir: %s" % originalOutDir)
+    sys.stdout.close()
+    sys.stderr.close()
 
 
-    # Convert the output to Paraview-compatible and readable csvs
-    convert_to_csvs.go(params.N_spheres(), params.final_step(), originalOutDir)  # TODO: test new csvs method
-
-    print("\nAll Pygran steps complete")
-
-    rp.go(params)
-
-    print("\n\nRun Completed!!")

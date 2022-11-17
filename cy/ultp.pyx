@@ -6,7 +6,7 @@ import sys
 sys.path.insert(1,'../')
 from param_defn import PD
 
-def go(params: PD):
+def go(params: PD, name_mod=""):
 
     print("Inputs received:")
     wrt_dir = params.out_dir
@@ -47,7 +47,7 @@ def go(params: PD):
     cdef double dz = (zM - z0) / (z_res + 1.0)
 
     # Load the previously generated 3D grid
-    with open(wrt_dir+'filled_array_'+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'.npy', 'rb') as f:
+    with open(wrt_dir+'filled_array_'+name_mod+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'.npy', 'rb') as f:
         loaded = np.load(f)
         f.close()
 
@@ -69,7 +69,7 @@ def go(params: PD):
         avg_z.append(p_z)
 
     print("finished z, writing out avg_z numpy array")
-    with open(wrt_dir+'avg_z_'+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'.npy', 'wb') as f:
+    with open(wrt_dir+'avg_z_'+name_mod+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'.npy', 'wb') as f:
         np.save(f, np.array(avg_z))
     print("finished writing np z array")
     print("mean poros for zs:",np.mean(avg_z))
@@ -77,7 +77,7 @@ def go(params: PD):
 
     figz, axz = plt.subplots()
     axz.plot(np.linspace(z0,zM,len(avg_z)),avg_z)
-    plt.savefig(wrt_dir+'z-poros-data_'+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'.png')
+    plt.savefig(wrt_dir+'z-poros-data_'+name_mod+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'.png')
 
     print("--- finish z in %s seconds ---" % (time.time()-start_time))
 
@@ -159,20 +159,20 @@ def go(params: PD):
         fill_vol_r = avg_rs[r]*dV
         avg_rs[r] = (total_vol-fill_vol_r)/total_vol
     print("finished everything, writing out avg_rs numpy array")
-    with open(wrt_dir+'avg_r_'+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'-'+str(r_res)+'.npy', 'wb') as f:
+    with open(wrt_dir+'avg_r_'+name_mod+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'-'+str(r_res)+'.npy', 'wb') as f:
         np.save(f, np.array(avg_rs))
     print("finished writing np array")
     print("mean poros for rs:",np.mean(avg_rs))
     print("std dev in r:",np.std(avg_rs))
     figr, axr = plt.subplots()
     axr.plot(rs,avg_rs)
-    plt.savefig(wrt_dir+'r-poros-data_'+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'-'+str(r_res)+'.png')
+    plt.savefig(wrt_dir+'r-poros-data_'+name_mod+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'-'+str(r_res)+'.png')
     rt = time.time() - start_time
     print("--- %s seconds ---" % rt)
 
 
 
-    with open(wrt_dir+'outputs.txt', 'a') as out:
+    with open(wrt_dir+'outputs'+name_mod+'.txt', 'a') as out:
         out.write("mean poros for zs:" + str(np.mean(avg_z)) + '\n')
         out.write("std dev in z:" + str(np.std(avg_z)) + '\n')
         out.write("mean poros for rs:" + str(np.mean(avg_rs)) +'\n')
