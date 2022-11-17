@@ -9,8 +9,6 @@ sys.path.insert(1,'../')
 from param_defn import PD
 
 def go(params: PD, name_mod = ""):
-        
-    params.out_dir = params.out_dir[:params.out_dir.rfind('/')+1]
 
     print("new write directory:", params.out_dir)
 

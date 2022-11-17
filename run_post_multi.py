@@ -26,9 +26,7 @@ if __name__ == "__main__":
         for Dpstr in ID_DP_dict[Dstr]:
             params = PD(Dstr, Dpstr, num_inserts=num_insertions)
 
-            params.output_dir()
-
-            rp.go(params,name_mod="_n10")
+            rp.go(params,name_mod="n10")
 
     sys.stdout.close()
     sys.stderr.close()

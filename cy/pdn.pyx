@@ -12,7 +12,7 @@ def go(params: PD, name_mod=""):
     #Since output is only written every 50000 steps, the final recorded position of the particles can be found via:
     final_step_out = params.final_step() - (params.final_step() % 50000)
     # import_csv = '../'+params.out_dir+'csvs/particles'+str(final_step_out)+'.csv'
-    import_csv = params.out_dir + 'csvs'+name_mod+'/particles' + str(final_step_out) + '.csv'
+    import_csv = params.out_dir + 'csvs_'+name_mod+'/particles' + str(final_step_out) + '.csv'
     print(import_csv)
     Dp = params.DP
     print(Dp)
@@ -43,7 +43,7 @@ def go(params: PD, name_mod=""):
         r.close()
 
     # Write the rest of the files to the parent folder (above /csvs/)
-    wrt_dir = import_csv[:import_csv.rindex("/")-4]
+    wrt_dir = params.out_dir
 
     print("writing to directory: "+ wrt_dir)
 
@@ -244,7 +244,7 @@ def go(params: PD, name_mod=""):
 
     # Save this as a binary numpy array file for use in the next step, and easy recovery later.
     print("finished filling, writing out numpy array")
-    with open(wrt_dir+'filled_array_'+name_mod+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'.npy', 'wb') as f:
+    with open(wrt_dir+'filled_array_'+name_mod+'_'+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'.npy', 'wb') as f:
         np.save(f, np.array(is_filled))
     print("finished writing np array")
 
@@ -283,7 +283,7 @@ def go(params: PD, name_mod=""):
 
     print("writing outputs.txt")
 
-    with open(wrt_dir+'outputs'+name_mod+'.txt', 'a') as out:
+    with open(wrt_dir+'outputs_'+name_mod+'.txt', 'a') as out:
         out.write('\ntotal porosity: ' + str(porosity) + '\n\n')
         out.write(str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'\n')
         out.write("z0="+str(z_0)+",zM="+str(z_M)+'\n')

@@ -58,6 +58,9 @@ class PD:
         self.num_inserts = num_inserts
         self.out_dir = "not_created"
         self.reso = reso
+        self.out_dir = 'outputs/'
+        self.out_dir += self.ID_str.replace('.', 'pt') + '/'
+        self.out_dir += self.DP_str.replace('.', 'pt').replace('/', '_') + '/'
 
     def length(self) -> float:
         return self.lens[self.ID_str]
@@ -87,17 +90,8 @@ class PD:
         # If the output directory has already been created, simply return that
         if self.out_dir != "not_created":
             return self.out_dir
-        out_dir = 'outputs/'
-        out_dir += self.ID_str.replace('.', 'pt') + '/'
-        out_dir += self.DP_str.replace('.', 'pt').replace('/', '_') + '/'
-        # Create this directory if it does not exist
-        try:
-            os.makedirs(out_dir, exist_ok=True)
-            print("Directory '%s' created successfully\n" % out_dir)
-        except OSError as error:
-            print("Directory '%s' can not be created. Error: %s\n" % (out_dir, str(error)))
         time = dt.now()
-        out_dir += 'sim_out_{}:{}:{}_{}-{}-{}'.format(
+        out_dir = self.out_dir + 'sim_out_{}:{}:{}_{}-{}-{}'.format(
             time.hour,
             time.minute,
             time.second,

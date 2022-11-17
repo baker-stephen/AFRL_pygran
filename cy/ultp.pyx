@@ -47,7 +47,7 @@ def go(params: PD, name_mod=""):
     cdef double dz = (zM - z0) / (z_res + 1.0)
 
     # Load the previously generated 3D grid
-    with open(wrt_dir+'filled_array_'+name_mod+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'.npy', 'rb') as f:
+    with open(wrt_dir+'filled_array_'+name_mod+'_'+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'.npy', 'rb') as f:
         loaded = np.load(f)
         f.close()
 
@@ -69,7 +69,7 @@ def go(params: PD, name_mod=""):
         avg_z.append(p_z)
 
     print("finished z, writing out avg_z numpy array")
-    with open(wrt_dir+'avg_z_'+name_mod+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'.npy', 'wb') as f:
+    with open(wrt_dir+'avg_z_'+name_mod+'_'+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'.npy', 'wb') as f:
         np.save(f, np.array(avg_z))
     print("finished writing np z array")
     print("mean poros for zs:",np.mean(avg_z))
@@ -159,7 +159,7 @@ def go(params: PD, name_mod=""):
         fill_vol_r = avg_rs[r]*dV
         avg_rs[r] = (total_vol-fill_vol_r)/total_vol
     print("finished everything, writing out avg_rs numpy array")
-    with open(wrt_dir+'avg_r_'+name_mod+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'-'+str(r_res)+'.npy', 'wb') as f:
+    with open(wrt_dir+'avg_r_'+name_mod+'_'+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'-'+str(r_res)+'.npy', 'wb') as f:
         np.save(f, np.array(avg_rs))
     print("finished writing np array")
     print("mean poros for rs:",np.mean(avg_rs))
@@ -172,7 +172,7 @@ def go(params: PD, name_mod=""):
 
 
 
-    with open(wrt_dir+'outputs'+name_mod+'.txt', 'a') as out:
+    with open(wrt_dir+'outputs_'+name_mod+'.txt', 'a') as out:
         out.write("mean poros for zs:" + str(np.mean(avg_z)) + '\n')
         out.write("std dev in z:" + str(np.std(avg_z)) + '\n')
         out.write("mean poros for rs:" + str(np.mean(avg_rs)) +'\n')
