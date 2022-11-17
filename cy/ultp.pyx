@@ -77,7 +77,7 @@ def go(params: PD, name_mod=""):
 
     figz, axz = plt.subplots()
     axz.plot(np.linspace(z0,zM,len(avg_z)),avg_z)
-    plt.savefig(wrt_dir+'z-poros-data_'+name_mod+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'.png')
+    plt.savefig(wrt_dir+'z-poros-data_'+name_mod+'_'+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'.png')
 
     print("--- finish z in %s seconds ---" % (time.time()-start_time))
 
@@ -166,7 +166,7 @@ def go(params: PD, name_mod=""):
     print("std dev in r:",np.std(avg_rs))
     figr, axr = plt.subplots()
     axr.plot(rs,avg_rs)
-    plt.savefig(wrt_dir+'r-poros-data_'+name_mod+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'-'+str(r_res)+'.png')
+    plt.savefig(wrt_dir+'r-poros-data_'+name_mod+'_'+str(x_res)+'-'+str(y_res)+'-'+str(z_res)+'-'+str(r_res)+'.png')
     rt = time.time() - start_time
     print("--- %s seconds ---" % rt)
 

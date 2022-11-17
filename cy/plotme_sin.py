@@ -45,7 +45,7 @@ def go(input_params: PD, name_mod=""):
 
     print("start")
     start_time = time.time()
-    out = open(wrt_dir+'outputs'+name_mod+'.txt',  'a')
+    out = open(wrt_dir+'outputs_'+name_mod+'.txt',  'a')
     pipe_in_rad = ID / 2
     x_res = res[0]
     y_res = res[1]
@@ -55,7 +55,7 @@ def go(input_params: PD, name_mod=""):
 
     #Load average porosity as a function of radius
     print("opening avg r arr")
-    with open(wrt_dir+'avg_r_'+name_mod + str(x_res) + '-' + str(y_res) + '-' + str(z_res) + '-' + str(r_res) + '.npy', 'rb') as f:
+    with open(wrt_dir+'avg_r_'+name_mod + '_'+str(x_res) + '-' + str(y_res) + '-' + str(z_res) + '-' + str(r_res) + '.npy', 'rb') as f:
         radial = np.load(f)
         f.close()
     print("done")
@@ -119,7 +119,7 @@ def go(input_params: PD, name_mod=""):
     ax.plot(rs, sin_cos_list(rs, results.params), 'r-',
             label='Fourier fit deg '+str(N))
     ax.legend()
-    plt.savefig(wrt_dir+"r-poros-fit_"+name_mod + str(x_res) + '-' + str(y_res) + '-' + str(z_res) + '-' + str(r_res) + '.png')
+    plt.savefig(wrt_dir+"r-poros-fit_"+name_mod + '_'+ str(x_res) + '-' + str(y_res) + '-' + str(z_res) + '-' + str(r_res) + '.png')
     # plt.show()
 
 
