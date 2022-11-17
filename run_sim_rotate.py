@@ -15,17 +15,14 @@ def go(sim_params: PD):
     all_params = (box[4],box[5])
     center = (all_params[0]+all_params[1])/2
     c = str(center)
-    box[0] = box[4]
-    box[1] = box[5]
-    box[2] = box[4]
-    box[3] = box[5]
+    box_l = [box[4],box[5],box[4],box[5],box[4],box[5],]
     # Create a dictionary of physical parameters
     params = {
 
         # Define the system
         'boundary': ('f', 'f', 'f'),  # fixed BCs
 
-        'box': box,  # simulation box size in inches
+        'box': box_l,  # simulation box size in inches
 
         # Define component(s)
         'species': (
