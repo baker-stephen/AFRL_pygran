@@ -12,17 +12,8 @@ def go(sim_params: PD):
     print('Running ' + sim_params.ID_str + '" ID with atom count ' + str(
         sim_params.N_spheres()) + ', and ' + sim_params.DP_str + '" DP.\n')
     box = sim_params.bounds()
-    min = 100
-    max = -100
-    for i in range(0,len(box),2):
-        b = box[i]
-        if b<min:
-            min = b
-
-    for i in range(1,len(box),2):
-        b = box[i]
-        if b>max:
-            max = b
+    min = box[0]
+    max = box[5]
     all_params = (min,max)
     center = (all_params[0]+all_params[1])/2
     c = str(center)
