@@ -357,7 +357,7 @@ if __name__ == "__main__":
     ns = []
     ls = []
     all_params = []
-    with open("../guo_layers_n10.csv", 'r') as csv:
+    with open("../guo_layers.csv", 'r') as csv:
         csv.readline()
         for line in csv:
             params = [float(item.strip()) for item in line.split(',')]
@@ -372,9 +372,9 @@ if __name__ == "__main__":
         Ds.append(Length(params[0], Length.inch))
         ds.append(Length(params[1], Length.inch))
         Ns.append(params[2])
-        poroses.append(params[5])  # use pygran volume average. For Guo calculated, use 4
-        ns.append(params[7])
-        ls.append(Length(params[9], Length.inch))
+        poroses.append(params[3])
+        ns.append(params[4])
+        ls.append(Length(params[5], Length.inch))
 
 
     tau_as = [tau_ann(l, d) for l, d in zip(ls, ds)]
@@ -393,7 +393,7 @@ if __name__ == "__main__":
     us = [mdot / (rho * area) for area in areas]
 
     #From wikipedia...
-    cf1 = 64
+    cf1 = 128
     cf2 = 1
     cD = 0.6+0.85 #avg discharge coef * 2
 
@@ -441,7 +441,7 @@ if __name__ == "__main__":
     ax1.scatter(Ns,weight_aws,label="Flow paths (weight avg)")
     ax1.scatter(Ns, Aw_cores, label="Core")
     ax1.scatter(Ns, Aw_anns, label="Annulus")
-    # ax1.plot(Ns,Cheng_Aws,label="Cheng",c='r')
+    ax1.plot(Ns,Cheng_Aws,label="Cheng",c='r')
     ax1.set_xlabel("D/d ratio")
     ax1.set_ylabel("Aw")
     ax1.legend()
@@ -452,30 +452,80 @@ if __name__ == "__main__":
     ax2.scatter(Ns,weight_bws,label="Flow paths (weight avg)")
     ax2.scatter(Ns, Bw_cores, label="Core")
     ax2.scatter(Ns, Bw_anns, label="Annulus")
-    # ax2.plot(Ns, Cheng_Bws,label="Cheng",c='r')
+    ax2.plot(Ns, Cheng_Bws,label="Cheng",c='r')
     ax2.set_xlabel("D/d ratio")
     ax2.set_ylabel("Bw")
     ax2.legend()
     plt.show()
 
     # fig3, ax3 = plt.subplots()
-    # # ax3.plot(Ns, ls, label="layer heights")
     # ax3.scatter(Ns, ns, label="number per layer")
-    # # ax3.plot(Ns, tau_as, label="annular tortuosity ")
-    # # ax3.plot(Ns, tau_cs,label="core tortuosity")
     # ax3.set_xlabel("D/d ratio")
     # ax3.set_ylabel("quantity")
     # ax3.legend()
     # plt.show()
-    #
+
     # fig4, ax4 = plt.subplots()
     # ax4.scatter(Ns, [l/d for l,d in zip(ls,ds)], label="layer heights")
-    # # ax4.plot(Ns, ns, label="number per layer")
-    # # ax3.plot(Ns, tau_as, label="annular tortuosity ")
-    # # ax3.plot(Ns, tau_cs,label="core tortuosity")
     # ax4.set_xlabel("D/d ratio")
     # ax4.set_ylabel("quantity")
     # ax4.legend()
+    # plt.show()
+
+    # fig5, ax5 = plt.subplots()
+    # ax5.plot(Ns, tau_as, label="annular tortuosity ")
+    # ax5.plot(Ns, tau_cs,label="core tortuosity")
+    # ax5.set_xlabel("D/d ratio")
+    # ax5.set_ylabel("tortuosity")
+    # ax5.legend()
+    # plt.show()
+
+    # k1s_pg = []
+    # k2s_pg = []
+    # Ns_pg = []
+    # ds_pg = []
+    # Ds_pg = []
+    #
+    # for i,N in enumerate(Ns):
+    #     if 2<N<3:
+    #         Ns_pg.append(N)
+    #         ds_pg.append(ds[i])
+    #         Ds_pg.append(Ds[i])
+    #         k1s_pg.append(ns[i]*(ds[i]**2)/(Ds[i]**2))
+    #         k2s_pg.append(ds[i]/ls[i])
+    #
+    # ns_ls_guo = [Guo_params(N, d) for N, d in zip(Ns_pg, ds_pg)]
+    # ns_guo = [nl[0] for nl in ns_ls_guo]
+    # ls_guo = [nl[1] for nl in ns_ls_guo]
+    #
+    # fig6, ax6 = plt.subplots()
+    # ax6.scatter(Ns, [n*(d**2)/(D**2) for n,d,D in zip(ns,ds,Ds)], label="k1")
+    # ax6.set_xlabel("D/d ratio")
+    # ax6.set_ylabel("quantity")
+    # ax6.legend()
+    # plt.show()
+    #
+    # fig7, ax7 = plt.subplots()
+    # ax7.scatter(Ns, [d/l for l,d in zip(ls,ds)], label="k2")
+    # ax7.set_xlabel("D/d ratio")
+    # ax7.set_ylabel("quantity")
+    # ax7.legend()
+    # plt.show()
+
+    # fig8, ax8 = plt.subplots()
+    # ax8.scatter(Ns_pg, k1s_pg, label="k1s pg")
+    # ax8.scatter(Ns_pg, [n*(d**2)/(D**2) for n,d,D in zip(ns_guo,ds_pg,Ds_pg)], label="k1s guo")
+    # ax8.set_xlabel("D/d ratio")
+    # ax8.set_ylabel("quantity")
+    # ax8.legend()
+    # plt.show()
+    #
+    # fig9, ax9 = plt.subplots()
+    # ax9.scatter(Ns_pg, k2s_pg, label="k2s pg")
+    # ax9.scatter(Ns_pg, [d/l for l,d in zip(ls_guo,ds_pg)], label="k2s guo")
+    # ax9.set_xlabel("D/d ratio")
+    # ax9.set_ylabel("quantity")
+    # ax9.legend()
     # plt.show()
 
 
