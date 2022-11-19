@@ -1,0 +1,8 @@
+
+total porosity: 0.4074501562052952
+
+800-800-2500
+z0=0.15,zM=1.0
+calc from sum: 0.39724916317008796
+err: 0.02567907998547379
+porosity_determination_new runtime: 433.93785667419434

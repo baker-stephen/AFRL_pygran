@@ -6,3 +6,9 @@ one_quarter/
 three_halves/
 __pycache__/
 **/*.npy
+cy/build/
+cy/pdn.c
+cy/pdn.cpython-38-x86_64-linux-gnu.so
+cy/ultp.c
+cy/ultp.cpython-38-x86_64-linux-gnu.so
+outputs/testing/
