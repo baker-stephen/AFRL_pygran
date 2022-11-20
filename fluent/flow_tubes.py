@@ -2,6 +2,7 @@ from dimension import *
 import matplotlib.pyplot as plt
 
 from scipy.optimize import fsolve
+from fluent import cheng_dp
 
 
 def tau_ann(l: Length, d: Length) -> float:
@@ -435,28 +436,42 @@ if __name__ == "__main__":
     weight_aws = [af*awa + (1-af)*awc for af,awa,awc in zip(ann_fs, Aw_anns, Aw_cores)]
     weight_bws = [af*bwa + (1-af)*bwc for af,bwa,bwc in zip(ann_fs, Bw_anns, Bw_cores)]
 
+    cheng_dp = [cheng_dp(ae,be,por,rho,mu,d,u) for ae,be,por,d,u in zip(A_Es,B_Es,poroses,ds,us)]
+    flowpath_dp_cores = [al*mu*u + bet*rho*u**2 for al,bet,u in zip(alpha_cores,beta_cores,us)]
+    flowpath_dp_anns = [al * mu * u + bet * rho * u ** 2 for al, bet, u in zip(alpha_anns, beta_anns, us)]
+    flowpath_dp_wavg = [af*fpa + (1-af)*fpc for af,fpa,fpc in zip(ann_fs, flowpath_dp_anns, flowpath_dp_cores)]
 
-    fig1, ax1 = plt.subplots()
-    Cheng_Aws = [A_E/M_factor(N,poros)**2 for A_E,N,poros in zip(A_Es,Ns,poroses)]
-    ax1.scatter(Ns,weight_aws,label="Flow paths (weight avg)")
-    ax1.scatter(Ns, Aw_cores, label="Core")
-    ax1.scatter(Ns, Aw_anns, label="Annulus")
-    ax1.plot(Ns,Cheng_Aws,label="Cheng",c='r')
-    ax1.set_xlabel("D/d ratio")
-    ax1.set_ylabel("Aw")
-    ax1.legend()
+    fig, ax = plt.subplots()
+    ax.scatter(Ns, flowpath_dp_wavg,label="Flow paths (weight avg)")
+    ax.scatter(Ns, flowpath_dp_cores, label="Core")
+    ax.scatter(Ns, flowpath_dp_anns, label="Annulus")
+    ax.plot(Ns,cheng_dp,label="Cheng",c='r')
+    ax.set_xlabel("D/d ratio")
+    ax.set_ylabel("pressure drop (Pa/m)")
+    ax.legend()
     plt.show()
 
-    fig2, ax2 = plt.subplots()
-    Cheng_Bws = [B_E / M_factor(N, poros) for B_E, N, poros in zip(B_Es, Ns, poroses)]
-    ax2.scatter(Ns,weight_bws,label="Flow paths (weight avg)")
-    ax2.scatter(Ns, Bw_cores, label="Core")
-    ax2.scatter(Ns, Bw_anns, label="Annulus")
-    ax2.plot(Ns, Cheng_Bws,label="Cheng",c='r')
-    ax2.set_xlabel("D/d ratio")
-    ax2.set_ylabel("Bw")
-    ax2.legend()
-    plt.show()
+    # fig1, ax1 = plt.subplots()
+    # Cheng_Aws = [A_E/M_factor(N,poros)**2 for A_E,N,poros in zip(A_Es,Ns,poroses)]
+    # ax1.scatter(Ns,weight_aws,label="Flow paths (weight avg)")
+    # ax1.scatter(Ns, Aw_cores, label="Core")
+    # ax1.scatter(Ns, Aw_anns, label="Annulus")
+    # ax1.plot(Ns,Cheng_Aws,label="Cheng",c='r')
+    # ax1.set_xlabel("D/d ratio")
+    # ax1.set_ylabel("Aw")
+    # ax1.legend()
+    # plt.show()
+    #
+    # fig2, ax2 = plt.subplots()
+    # Cheng_Bws = [B_E / M_factor(N, poros) for B_E, N, poros in zip(B_Es, Ns, poroses)]
+    # ax2.scatter(Ns,weight_bws,label="Flow paths (weight avg)")
+    # ax2.scatter(Ns, Bw_cores, label="Core")
+    # ax2.scatter(Ns, Bw_anns, label="Annulus")
+    # ax2.plot(Ns, Cheng_Bws,label="Cheng",c='r')
+    # ax2.set_xlabel("D/d ratio")
+    # ax2.set_ylabel("Bw")
+    # ax2.legend()
+    # plt.show()
 
     # fig3, ax3 = plt.subplots()
     # ax3.scatter(Ns, ns, label="number per layer")

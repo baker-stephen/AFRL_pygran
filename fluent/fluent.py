@@ -137,7 +137,7 @@ if __name__ == "__main__":
     empirical_porosity = poros_Foumeny(N) if poros_Guo(N) == -1 else poros_Guo(N)
     # empirical_porosity = poros_Cheng(N)
     # TODO: Manually enter Pygran fitted volume-averaged porosity from outputs.txt
-    porosity = 0.3682518722381637
+    porosity = 0.34550914
     # porosity = empirical_porosity
     D_H = np.sqrt(8*Dp**2*porosity**3/(9*(1-porosity)**2))
     print("D_H:",D_H.get_special([Unit(Length,Length.inch)]))
@@ -151,7 +151,8 @@ if __name__ == "__main__":
     vol = Volume(1,Volume.gal)
     duration = Time(1,Time.minute)
     mass_flow_exp = vol*rho_h20_exp/duration
-    mdot = mass_flow_exp
+    # mdot = mass_flow_exp
+    mdot = Derived(0.06297849707167,{Unit(Mass,Mass.kg):1,Unit(Time,Time.s):-1})
 
     #outputs
 
