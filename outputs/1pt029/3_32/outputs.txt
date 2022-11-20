@@ -42,3 +42,5 @@ plotme runtime: 1.393860101699829
 volume averaged porosity: 0.3682518722381637
 
 weighted std dev: 0.12525190132039835
+
+fluent porosity: 0.36633946

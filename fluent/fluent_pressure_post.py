@@ -5,7 +5,7 @@ from sklearn.linear_model import LinearRegression
 if __name__ =="__main__":
     xs = []
     press = []
-    with open('axial_pressure_data/smooth_one_in_higher_flow.xy', 'r') as read:
+    with open('axial_pressure_data/1pt029ID_3_32DP_1mdot_laminar_uniform.xy', 'r') as read:
         for i,line in enumerate(read):
             if i<4:
                 # print("non-data line:",line)
@@ -46,7 +46,7 @@ if __name__ =="__main__":
     # press_sort = [p/6894.76 for p in press_sort]
 
     #convert position to in, set x0 = 0:
-    xs_sort_in = np.array([x*.0254 for x in xs_sort])
+    xs_sort_in = np.array([x/.0254 for x in xs_sort])
     fig, ax = plt.subplots()
     ax.plot(xs_sort_in,press_sort,label="data")
     ax.plot(xs_sort_in,model.intercept_+xs_sort*model.coef_[0],label="linear fit")

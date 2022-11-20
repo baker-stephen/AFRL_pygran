@@ -374,7 +374,7 @@ if __name__ == "__main__":
         Ns.append(params[2])
         poroses.append(params[3])
         ns.append(params[4])
-        ls.append(Length(params[5], Length.inch))
+        ls.append(Length(params[6], Length.inch))
 
 
     tau_as = [tau_ann(l, d) for l, d in zip(ls, ds)]
@@ -393,9 +393,9 @@ if __name__ == "__main__":
     us = [mdot / (rho * area) for area in areas]
 
     #From wikipedia...
-    cf1 = 128
+    cf1 = 32
     cf2 = 1
-    cD = 0.6+0.85 #avg discharge coef * 2
+    cD = 2*(0.6+0.85) #avg discharge coef * 2
 
     # A_E = 150
     # B_E = 1.75
@@ -480,6 +480,20 @@ if __name__ == "__main__":
     # ax5.legend()
     # plt.show()
 
+    # fig6, ax6 = plt.subplots()
+    # ax6.scatter(Ns, [n*(d**2)/(D**2) for n,d,D in zip(ns,ds,Ds)], label="k1")
+    # ax6.set_xlabel("D/d ratio")
+    # ax6.set_ylabel("quantity")
+    # ax6.legend()
+    # plt.show()
+    #
+    # fig7, ax7 = plt.subplots()
+    # ax7.scatter(Ns, [d/l for l,d in zip(ls,ds)], label="k2")
+    # ax7.set_xlabel("D/d ratio")
+    # ax7.set_ylabel("quantity")
+    # ax7.legend()
+    # plt.show()
+
     # k1s_pg = []
     # k2s_pg = []
     # Ns_pg = []
@@ -498,20 +512,6 @@ if __name__ == "__main__":
     # ns_guo = [nl[0] for nl in ns_ls_guo]
     # ls_guo = [nl[1] for nl in ns_ls_guo]
     #
-    # fig6, ax6 = plt.subplots()
-    # ax6.scatter(Ns, [n*(d**2)/(D**2) for n,d,D in zip(ns,ds,Ds)], label="k1")
-    # ax6.set_xlabel("D/d ratio")
-    # ax6.set_ylabel("quantity")
-    # ax6.legend()
-    # plt.show()
-    #
-    # fig7, ax7 = plt.subplots()
-    # ax7.scatter(Ns, [d/l for l,d in zip(ls,ds)], label="k2")
-    # ax7.set_xlabel("D/d ratio")
-    # ax7.set_ylabel("quantity")
-    # ax7.legend()
-    # plt.show()
-
     # fig8, ax8 = plt.subplots()
     # ax8.scatter(Ns_pg, k1s_pg, label="k1s pg")
     # ax8.scatter(Ns_pg, [n*(d**2)/(D**2) for n,d,D in zip(ns_guo,ds_pg,Ds_pg)], label="k1s guo")

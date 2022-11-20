@@ -129,16 +129,16 @@ if __name__ == "__main__":
     D_one_one_half_outside = Length(1.9, Length.inch)
 
     # TODO: Set the sphere (pellet) diameter
-    Dp = Length(2.8,Length.mm)
+    Dp = Length(3/32,Length.inch)
     # TODO: Set he inner diameter
-    D = D_half
+    D = D_one
     N = float(D / Dp)
     print("N:",N)
     empirical_porosity = poros_Foumeny(N) if poros_Guo(N) == -1 else poros_Guo(N)
     # empirical_porosity = poros_Cheng(N)
     # TODO: Manually enter Pygran fitted volume-averaged porosity from outputs.txt
-    # porosity = 0.416128576115776
-    porosity = empirical_porosity
+    porosity = 0.3682518722381637
+    # porosity = empirical_porosity
     D_H = np.sqrt(8*Dp**2*porosity**3/(9*(1-porosity)**2))
     print("D_H:",D_H.get_special([Unit(Length,Length.inch)]))
     A_H_ratio = D_H**2/D**2

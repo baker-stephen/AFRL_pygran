@@ -25,7 +25,7 @@ ID_DP_dict = {
 
 if __name__ == "__main__":
     csv = open('guo_layers.csv', 'w')
-    csv.write("D,Dp,N,vol avg por,n,l,k1,k2\n")
+    csv.write("D,Dp,N,vol avg por,n,l,l_alt,k1,k2,k2_alt,por_alt\n")
 
     Ns = []
     k1s = []
@@ -122,7 +122,7 @@ if __name__ == "__main__":
             print("k1:",k1)
 
             vol_avg_por = -1
-            with open(out_dir+'outputs.txt', 'r') as out_txt:
+            with open(out_dir+'outputs_n10.txt', 'r') as out_txt:
                 key_str = "volume averaged porosity: "
                 for line in out_txt:
                     if line.__contains__(key_str):
@@ -246,7 +246,14 @@ if __name__ == "__main__":
 
             k2 = 1.5 * (1 - vol_avg_por) / k1
             l = Dp/k2
-            csv.write(D_str+','+str(Dp)+','+str(N)+','+str(vol_avg_por)+','+str(n_fromz)+','+str(l)+','+str(k1)+','+str(k2)+'\n')
+
+            N_layers_alt = len(positions)/n_fromz
+            l_alt = (zM-z0)/N_layers_alt
+            k2_alt = N_layers_alt*Dp/(zM-z0)
+
+            porosity_alt = 1-(2/3)*k1*k2_alt
+
+            csv.write(D_str+','+str(Dp)+','+str(N)+','+str(vol_avg_por)+','+str(n_fromz)+','+str(l)+','+str(l_alt)+','+str(k1)+','+str(k2)+','+str(k2_alt)+','+str(porosity_alt)+'\n')
             print()
 
     csv.close()
