@@ -357,6 +357,8 @@ if __name__ == "__main__":
     poroses = []
     ns = []
     ls = []
+    k1s = []
+    k2s = []
     all_params = []
     with open("../guo_layers.csv", 'r') as csv:
         csv.readline()
@@ -373,9 +375,11 @@ if __name__ == "__main__":
         Ds.append(Length(params[0], Length.inch))
         ds.append(Length(params[1], Length.inch))
         Ns.append(params[2])
-        poroses.append(params[3])
+        poroses.append(params[10])
         ns.append(params[4])
         ls.append(Length(params[6], Length.inch))
+        k1s.append(params[7])
+        k2s.append(params[9])
 
 
     tau_as = [tau_ann(l, d) for l, d in zip(ls, ds)]
@@ -396,7 +400,8 @@ if __name__ == "__main__":
     #From wikipedia...
     cf1 = 32
     cf2 = 1
-    cD = 0.6+0.85 #avg discharge coef * 2
+    avg_cD = (0.6+0.85)/2
+    cD = 4*avg_cD
 
     # A_E = 150
     # B_E = 1.75
@@ -441,16 +446,34 @@ if __name__ == "__main__":
     flowpath_dp_anns = [al * mu * u + bet * rho * u ** 2 for al, bet, u in zip(alpha_anns, beta_anns, us)]
     flowpath_dp_wavg = [af*fpa + (1-af)*fpc for af,fpa,fpc in zip(ann_fs, flowpath_dp_anns, flowpath_dp_cores)]
 
-    fig, ax = plt.subplots()
-    ax.scatter(Ns, flowpath_dp_wavg,label="Flow paths (weight avg)")
-    ax.scatter(Ns, flowpath_dp_cores, label="Core")
-    ax.scatter(Ns, flowpath_dp_anns, label="Annulus")
-    ax.plot(Ns,cheng_dp,label="Cheng",c='r')
-    ax.set_xlabel("D/d ratio")
-    ax.set_ylabel("pressure drop (Pa/m)")
-    ax.legend()
-    plt.show()
+    Ns_Ds = {0.26:[],0.602:[],1.029:[],1.59:[]}
+    cheng_dp_Ds = {0.26:[],0.602:[],1.029:[],1.59:[]}
+    flowpath_dp_wavg_Ds = {0.26:[],0.602:[],1.029:[],1.59:[]}
+    for i,N in enumerate(Ns):
+        Ns_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(N)
+        cheng_dp_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(cheng_dp[i])
+        flowpath_dp_wavg_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(flowpath_dp_wavg[i])
 
+    print("flow paths 1.029 3/32:", flowpath_dp_wavg_Ds[1.029][-1])
+    # for D in Ns_Ds.keys():
+    #     fig, ax = plt.subplots()
+    #     ax.scatter(Ns_Ds[D], cheng_dp_Ds[D], label="cheng, D=" + str(D))
+    #     ax.scatter(Ns_Ds[D], flowpath_dp_wavg_Ds[D], label="flow paths, D=" + str(D))
+    #     ax.set_xlabel("D/d ratio")
+    #     ax.set_ylabel("pressure drop (Pa/m)")
+    #     ax.legend()
+    #     plt.show()
+    #
+    # fig, ax = plt.subplots()
+    # ax.scatter(Ns, flowpath_dp_wavg,label="Flow paths (weight avg)")
+    # ax.scatter(Ns, flowpath_dp_cores, label="Core")
+    # ax.scatter(Ns, flowpath_dp_anns, label="Annulus")
+    # ax.plot(Ns,cheng_dp,label="Cheng",c='r')
+    # ax.set_xlabel("D/d ratio")
+    # ax.set_ylabel("pressure drop (Pa/m)")
+    # ax.legend()
+    # plt.show()
+    #
     # fig1, ax1 = plt.subplots()
     # Cheng_Aws = [A_E/M_factor(N,poros)**2 for A_E,N,poros in zip(A_Es,Ns,poroses)]
     # ax1.scatter(Ns,weight_aws,label="Flow paths (weight avg)")
@@ -495,19 +518,19 @@ if __name__ == "__main__":
     # ax5.legend()
     # plt.show()
 
-    # fig6, ax6 = plt.subplots()
-    # ax6.scatter(Ns, [n*(d**2)/(D**2) for n,d,D in zip(ns,ds,Ds)], label="k1")
-    # ax6.set_xlabel("D/d ratio")
-    # ax6.set_ylabel("quantity")
-    # ax6.legend()
-    # plt.show()
-    #
-    # fig7, ax7 = plt.subplots()
-    # ax7.scatter(Ns, [d/l for l,d in zip(ls,ds)], label="k2")
-    # ax7.set_xlabel("D/d ratio")
-    # ax7.set_ylabel("quantity")
-    # ax7.legend()
-    # plt.show()
+    fig6, ax6 = plt.subplots()
+    ax6.scatter(Ns, k1s, label="k1")
+    ax6.set_xlabel("D/d ratio")
+    ax6.set_ylabel("quantity")
+    ax6.legend()
+    plt.show()
+
+    fig7, ax7 = plt.subplots()
+    ax7.scatter(Ns, k2s, label="k2")
+    ax7.set_xlabel("D/d ratio")
+    ax7.set_ylabel("quantity")
+    ax7.legend()
+    plt.show()
 
     # k1s_pg = []
     # k2s_pg = []
@@ -543,28 +566,28 @@ if __name__ == "__main__":
     # ax9.legend()
     # plt.show()
 
-    Ns_Ds = {0.26:[],0.602:[],1.029:[],1.59:[]}
-    beta_Ds = {0.26:[],0.602:[],1.029:[],1.59:[]}
-    bw_Ds = {0.26:[],0.602:[],1.029:[],1.59:[]}
-    tau_Ds = {0.26:[],0.602:[],1.029:[],1.59:[]}
-    l_Ds = {0.26: [], 0.602: [], 1.029: [], 1.59: []}
-    # print(Ds)
-    for i,N in enumerate(Ns):
-        Ns_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(N)
-        beta_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(beta_cores[i])
-        bw_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(Bw_cores[i])
-        tau_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(tau_cs[i])
-        l_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(ls[i])
-
-    fig10, ax10 = plt.subplots()
-    for D in Ns_Ds.keys():
-        # ax10.scatter(Ns_Ds[D], beta_Ds[D], label="beta core, D="+str(D))
-        ax10.scatter(Ns_Ds[D], l_Ds[D], label="l, D=" + str(D))
-    # ax10.scatter(Ns, beta_anns, label="beta ann")
-    ax10.set_xlabel("D/d ratio")
-    ax10.set_ylabel("beta")
-    ax10.legend()
-    plt.show()
+    # Ns_Ds = {0.26:[],0.602:[],1.029:[],1.59:[]}
+    # beta_Ds = {0.26:[],0.602:[],1.029:[],1.59:[]}
+    # bw_Ds = {0.26:[],0.602:[],1.029:[],1.59:[]}
+    # tau_Ds = {0.26:[],0.602:[],1.029:[],1.59:[]}
+    # l_Ds = {0.26: [], 0.602: [], 1.029: [], 1.59: []}
+    # # print(Ds)
+    # for i,N in enumerate(Ns):
+    #     Ns_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(N)
+    #     beta_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(beta_cores[i])
+    #     bw_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(Bw_cores[i])
+    #     tau_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(tau_cs[i])
+    #     l_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(ls[i])
+    #
+    # fig10, ax10 = plt.subplots()
+    # for D in Ns_Ds.keys():
+    #     # ax10.scatter(Ns_Ds[D], beta_Ds[D], label="beta core, D="+str(D))
+    #     ax10.scatter(Ns_Ds[D], l_Ds[D], label="l, D=" + str(D))
+    # # ax10.scatter(Ns, beta_anns, label="beta ann")
+    # ax10.set_xlabel("D/d ratio")
+    # ax10.set_ylabel("beta")
+    # ax10.legend()
+    # plt.show()
 
 
 if __name__ == "__ain__":
