@@ -208,7 +208,7 @@ def beta_new(cD: float, tau: float, l: Length, phi: float) -> Derived:
     :param phi: porosity
     :return: beta (1/m)
     """
-    return cD * tau / (2 * phi ** 2 * l)
+    return cD * tau**2 / (2 * phi ** 2 * l)
 
 def Ergun_alpha(A_E: float, epsilon: float, d: Length) -> Derived:
     """
@@ -396,7 +396,7 @@ if __name__ == "__main__":
     #From wikipedia...
     cf1 = 32
     cf2 = 1
-    cD = 2*(0.6+0.85) #avg discharge coef * 2
+    cD = 0.6+0.85 #avg discharge coef * 2
 
     # A_E = 150
     # B_E = 1.75
@@ -542,6 +542,29 @@ if __name__ == "__main__":
     # ax9.set_ylabel("quantity")
     # ax9.legend()
     # plt.show()
+
+    Ns_Ds = {0.26:[],0.602:[],1.029:[],1.59:[]}
+    beta_Ds = {0.26:[],0.602:[],1.029:[],1.59:[]}
+    bw_Ds = {0.26:[],0.602:[],1.029:[],1.59:[]}
+    tau_Ds = {0.26:[],0.602:[],1.029:[],1.59:[]}
+    l_Ds = {0.26: [], 0.602: [], 1.029: [], 1.59: []}
+    # print(Ds)
+    for i,N in enumerate(Ns):
+        Ns_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(N)
+        beta_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(beta_cores[i])
+        bw_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(Bw_cores[i])
+        tau_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(tau_cs[i])
+        l_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(ls[i])
+
+    fig10, ax10 = plt.subplots()
+    for D in Ns_Ds.keys():
+        # ax10.scatter(Ns_Ds[D], beta_Ds[D], label="beta core, D="+str(D))
+        ax10.scatter(Ns_Ds[D], l_Ds[D], label="l, D=" + str(D))
+    # ax10.scatter(Ns, beta_anns, label="beta ann")
+    ax10.set_xlabel("D/d ratio")
+    ax10.set_ylabel("beta")
+    ax10.legend()
+    plt.show()
 
 
 if __name__ == "__ain__":
