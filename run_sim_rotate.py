@@ -1,3 +1,5 @@
+import os
+
 from pygran import simulation
 from pygran.params import steel, glass
 import numpy as np
@@ -62,6 +64,9 @@ def go(sim_params: PD):
     sim = simulation.DEM(**params)
 
     print("read particles")
+
+    print("current dir:")
+    print(os.getcwd())
 
     positions = []
     final_csv = sim_params.final_step() - sim_params.final_step() % 50000
