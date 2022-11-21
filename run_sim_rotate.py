@@ -24,7 +24,7 @@ def go(sim_params: PD):
         # Define the system
         'boundary': ('f', 'f', 'f'),  # fixed BCs
 
-        # 'box': box_l,  # simulation box size in inches
+        'box': box_l,  # simulation box size in inches
 
         # Define component(s)
         'species': (
@@ -61,11 +61,28 @@ def go(sim_params: PD):
     # Create an instance of the DEM class
     sim = simulation.DEM(**params)
 
-    print("read restart")
+    print("read particles")
 
-    sim.command('read_restart outputs/0pt602/2pt8_25pt4/sim_out_12:12:16_6-11-2022/restart/restart.binary.48955000')
+    positions = []
+    final_csv = sim_params.final_step() - sim_params.final_step() % 50000
+    out_dir = 'outputs/'
+    out_dir += sim_params.ID_str.replace('.', 'pt') + '/'
+    out_dir += sim_params.DP_str.replace('.', 'pt').replace('/', '_') + '/'
+    with open(out_dir + 'csvs_n10/particles' + str(final_csv) + '.csv', 'r') as r:
+        r.readline()
+        for line in r:
+            xyz = [float(p) for p in line.split(",")]
+            positions.append(xyz)
+            sim.command('create_atoms {} single {} {} {}'.format(1,xyz[0],xyz[1],xyz[2]))
+        r.close()
 
-    print("read done.")
+    print("read and created, rotating")
+
+    # print("read restart")
+
+    # sim.command('read_restart outputs/0pt602/2pt8_25pt4/sim_out_12:12:16_6-11-2022/restart/restart.binary.48955000')
+
+    # print("read done.")
     # #Add a dissipative force
     # air_resistance = sim.addViscous(species=1, gamma=0.1)
     #
@@ -119,7 +136,12 @@ def go(sim_params: PD):
     ))
     sim.run((1.0/4)/params['dt'],params['dt'])
     sim.remove(rotate)
+
+    print("rotated!")
+
     sim.run(params['stages']['insertion'], params['dt'])
+
+    print("DONE")
 
 
 
