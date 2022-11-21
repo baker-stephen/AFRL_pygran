@@ -87,9 +87,9 @@ class PD:
         :return: A time-stamped directory at which the simulation outputs are saved
         """
 
-        # If the output directory has already been created, simply return that
-        if self.out_dir != "not_created":
-            return self.out_dir
+        # # If the output directory has already been created, simply return that
+        # if self.out_dir != "not_created":
+        #     return self.out_dir
         time = dt.now()
         out_dir = self.out_dir + 'sim_out_{}:{}:{}_{}-{}-{}'.format(
             time.hour,
