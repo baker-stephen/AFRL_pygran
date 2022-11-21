@@ -81,6 +81,11 @@ def go(sim_params: PD):
             sim.command('create_atoms {} single {} {} {}'.format(1,xyz[0],xyz[1],xyz[2]))
         r.close()
 
+    print("created")
+    for atom_num in sim.get_natoms():
+        sim.command('set atom {} diameter {}'.format(atom_num,sim_params.DP))
+
+    print("set")
     print("read and created, rotating")
 
     # print("read restart")
