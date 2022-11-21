@@ -82,7 +82,7 @@ def go(sim_params: PD):
         r.close()
 
     print("created")
-    for atom_num in sim.get_natoms():
+    for atom_num in range(sim.get_natoms()):
         sim.command('set atom {} diameter {}'.format(atom_num,sim_params.DP))
 
     print("set")
