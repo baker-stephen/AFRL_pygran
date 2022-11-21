@@ -24,7 +24,7 @@ def go(sim_params: PD):
         # Define the system
         'boundary': ('f', 'f', 'f'),  # fixed BCs
 
-        'box': box_l,  # simulation box size in inches
+        # 'box': box_l,  # simulation box size in inches
 
         # Define component(s)
         'species': (
