@@ -73,7 +73,7 @@ def go(sim_params: PD):
     out_dir = 'outputs/'
     out_dir += sim_params.ID_str.replace('.', 'pt') + '/'
     out_dir += sim_params.DP_str.replace('.', 'pt').replace('/', '_') + '/'
-    with open(out_dir + 'csvs_n10/particles' + str(final_csv) + '.csv', 'r') as r:
+    with open('../csvs_n10/particles' + str(final_csv) + '.csv', 'r') as r:
         r.readline()
         for line in r:
             xyz = [float(p) for p in line.split(",")]
