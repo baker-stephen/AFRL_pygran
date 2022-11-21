@@ -53,58 +53,66 @@ def go(sim_params: PD):
                      'args': {'curvature_tolerant': 'yes'}
                      },
         },
+
+        # 'restart' : [0,'outputs/0pt602/2pt8_25pt4/sim_out_12:12:16_6-11-2022/restart/restart.binary.48955000']
     }
 
+    print("create sim")
     # Create an instance of the DEM class
     sim = simulation.DEM(**params)
 
-    #Add a dissipative force
-    air_resistance = sim.addViscous(species=1, gamma=0.1)
+    print("read restart")
 
-    for i in range(sim_params.num_inserts):
-        # Insert a group of particles
-        insert = sim.insert(species=1, value=((i+1)*parts_per_insert - sim.get_natoms()), region=sim_params.insert(),
-                            args={'orientation': 'random'})
+    sim.command('read_restart outputs/0pt602/2pt8_25pt4/sim_out_12:12:16_6-11-2022/restart/restart.binary.48955000')
 
-        # Run insertion stage, let the particles settle into the cylinder
-        sim.run(params['stages']['insertion'] * 2, params['dt'])
-        sim.remove(insert)
-
-        # Setup shaking:
-        freq = 10 * 2 * np.pi
-        nTaps = 30
-        period = 1 / freq
-        nSteps = period / params['dt']
-        ampz = sim_params.ampz()
-        ampxy = sim_params.ampxy()
-
-        for j in range(nTaps // 2):
-            # vibrate x
-            mm = sim.moveMesh('pipe', viblin=(
-                'axis 1 0 0', 'order 1', 'amplitude {}'.format(ampxy), 'phase 0', 'period {}'.format(period)))
-            sim.run(nSteps, params['dt'])
-            sim.remove(mm)
-            # vibrate y
-            mm = sim.moveMesh('pipe', viblin=(
-                'axis 0 1 0', 'order 1', 'amplitude {}'.format(ampxy), 'phase 0', 'period {}'.format(period)))
-            sim.run(nSteps, params['dt'])
-            sim.remove(mm)
-
-        # Allow for some settling
-        sim.run(params['stages']['insertion'] / 2, params['dt'])
-
-        for k in range(nTaps):
-            # vibrate z
-            mm = sim.moveMesh('pipe', viblin=(
-                'axis 0 0 1', 'order 1', 'amplitude {}'.format(ampz), 'phase 0', 'period {}'.format(period)))
-            sim.run(nSteps, params['dt'])
-            sim.remove(mm)
-
-        # Let simulation settle before next insertion
-
-        sim.run(params['stages']['insertion'] * 2, params['dt'])
-
-    sim.run(params['stages']['insertion'] * 2, params['dt'])
+    print("read done.")
+    # #Add a dissipative force
+    # air_resistance = sim.addViscous(species=1, gamma=0.1)
+    #
+    # for i in range(sim_params.num_inserts):
+    #     # Insert a group of particles
+    #     insert = sim.insert(species=1, value=((i+1)*parts_per_insert - sim.get_natoms()), region=sim_params.insert(),
+    #                         args={'orientation': 'random'})
+    #
+    #     # Run insertion stage, let the particles settle into the cylinder
+    #     sim.run(params['stages']['insertion'] * 2, params['dt'])
+    #     sim.remove(insert)
+    #
+    #     # Setup shaking:
+    #     freq = 10 * 2 * np.pi
+    #     nTaps = 30
+    #     period = 1 / freq
+    #     nSteps = period / params['dt']
+    #     ampz = sim_params.ampz()
+    #     ampxy = sim_params.ampxy()
+    #
+    #     for j in range(nTaps // 2):
+    #         # vibrate x
+    #         mm = sim.moveMesh('pipe', viblin=(
+    #             'axis 1 0 0', 'order 1', 'amplitude {}'.format(ampxy), 'phase 0', 'period {}'.format(period)))
+    #         sim.run(nSteps, params['dt'])
+    #         sim.remove(mm)
+    #         # vibrate y
+    #         mm = sim.moveMesh('pipe', viblin=(
+    #             'axis 0 1 0', 'order 1', 'amplitude {}'.format(ampxy), 'phase 0', 'period {}'.format(period)))
+    #         sim.run(nSteps, params['dt'])
+    #         sim.remove(mm)
+    #
+    #     # Allow for some settling
+    #     sim.run(params['stages']['insertion'] / 2, params['dt'])
+    #
+    #     for k in range(nTaps):
+    #         # vibrate z
+    #         mm = sim.moveMesh('pipe', viblin=(
+    #             'axis 0 0 1', 'order 1', 'amplitude {}'.format(ampz), 'phase 0', 'period {}'.format(period)))
+    #         sim.run(nSteps, params['dt'])
+    #         sim.remove(mm)
+    #
+    #     # Let simulation settle before next insertion
+    #
+    #     sim.run(params['stages']['insertion'] * 2, params['dt'])
+    #
+    # sim.run(params['stages']['insertion'] * 2, params['dt'])
 
     rotate = sim.moveMesh('pipe', rotate=(
         'origin '+c+" "+c+" "+c,'axis 1 0 0', 'period 1'

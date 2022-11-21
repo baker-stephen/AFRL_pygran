@@ -496,12 +496,12 @@ if __name__ == "__main__":
     # ax2.legend()
     # plt.show()
 
-    # fig3, ax3 = plt.subplots()
-    # ax3.scatter(Ns, ns, label="number per layer")
-    # ax3.set_xlabel("D/d ratio")
-    # ax3.set_ylabel("quantity")
-    # ax3.legend()
-    # plt.show()
+    fig3, ax3 = plt.subplots()
+    ax3.scatter(Ns, ns, label="number per layer")
+    ax3.set_xlabel("D/d ratio")
+    ax3.set_ylabel("quantity")
+    ax3.legend()
+    plt.show()
 
     # fig4, ax4 = plt.subplots()
     # ax4.scatter(Ns, [l/d for l,d in zip(ls,ds)], label="layer heights")
@@ -518,19 +518,19 @@ if __name__ == "__main__":
     # ax5.legend()
     # plt.show()
 
-    fig6, ax6 = plt.subplots()
-    ax6.scatter(Ns, k1s, label="k1")
-    ax6.set_xlabel("D/d ratio")
-    ax6.set_ylabel("quantity")
-    ax6.legend()
-    plt.show()
-
-    fig7, ax7 = plt.subplots()
-    ax7.scatter(Ns, k2s, label="k2")
-    ax7.set_xlabel("D/d ratio")
-    ax7.set_ylabel("quantity")
-    ax7.legend()
-    plt.show()
+    # fig6, ax6 = plt.subplots()
+    # ax6.scatter(Ns, k1s, label="k1")
+    # ax6.set_xlabel("D/d ratio")
+    # ax6.set_ylabel("quantity")
+    # ax6.legend()
+    # plt.show()
+    #
+    # fig7, ax7 = plt.subplots()
+    # ax7.scatter(Ns, k2s, label="k2")
+    # ax7.set_xlabel("D/d ratio")
+    # ax7.set_ylabel("quantity")
+    # ax7.legend()
+    # plt.show()
 
     # k1s_pg = []
     # k2s_pg = []
