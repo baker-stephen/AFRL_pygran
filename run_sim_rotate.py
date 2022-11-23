@@ -19,7 +19,8 @@ def go(sim_params: PD):
     all_params = (min,max)
     center = (all_params[0]+all_params[1])/2
     c = str(center)
-    box_l = [min,max,min,max,min,max,]
+    abs_max = max(abs(min),abs(max))
+    box_l = [-abs_max,abs_max,-abs_max,abs_max,-abs_max,abs_max]
     # Create a dictionary of physical parameters
     params = {
 
