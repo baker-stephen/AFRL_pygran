@@ -1,0 +1,45 @@
+LIGGGHTS (Version LIGGGHTS-PUBLIC 3.8.0, compiled 2022-07-02-19:34:55 by stbaker, git commit 86544c3f1215bc9744d7929e3eacf53ba086af9e)
+units si
+hard_particles yes
+dimension 3
+atom_style sphere
+atom_modify map array
+boundary f f f 
+newton off
+communicate single vel yes
+processors * * *
+restart 5000 restart/restart.binary
+region domain block -6 25 -6 25 -6 25  units box volume_limit 1e-20
+create_box 2 domain
+Created orthogonal box = (-6 -6 -6) to (25 25 25)
+  1 by 1 by 1 MPI processor grid
+pair_style  gran model hooke tangential history cohesion sjkr tangential_damping on ktToKnUser on limitForce on
+pair_coeff * *
+neighbor 0.027559055118110236 bin
+neigh_modify delay 0 every 10 check yes
+group group0 type 1
+0 atoms in group group0
+fix 18861185 group0 particletemplate/sphere 15485867 volume_limit 1e-20 atom_type 1 density constant 2500.0 radius constant 0.05511811023622047
+fix pdd34036784 group0 particledistribution/discrete/numberbased 67867967 1 18861185 1.0
+fix myGravity all gravity 385.827 vector 0 0 -1
+fix ts_check all check/timestep/gran 1000 0.5 0.5
+fix sphere_253611 group0 nve/sphere
+fix pipe all mesh/surface/stress file /home/stbaker/afrl/AFRL_pygran/mesh/half_pg_taller_blended_funnel_reduced.stl type 2 curvature_tolerant yes 
+fix walls all wall/gran model hooke tangential history cohesion sjkr mesh n_meshes 1 meshes pipe 
+dump dump  all custom 50000 traj/particles*.vtk id  type  x  y  z  radius  vx  vy  vz  fx  fy  fz 
+dump_modify dump  append  yes 
+dump dump55772485 all mesh/vtk 50000 traj/pipe*.vtk id stress stresscomponents vel pipe
+fix youngsModulus all property/global youngsModulus peratomtype 63000000000.0 200000000000.0
+fix poissonsRatio all property/global poissonsRatio peratomtype 0.24 0.3
+fix coefficientFriction all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+fix coefficientRollingFriction all property/global coefficientRollingFriction peratomtypepair 2 0.0 0.0 0.0 0.0
+fix cohesionEnergyDensity all property/global cohesionEnergyDensity peratomtypepair 2 0.05 0.0 0.0 0.0
+fix coefficientRestitution all property/global coefficientRestitution peratomtypepair 2 0.9 0.9 0.9 0.9
+fix coefficientRollingViscousDamping all property/global coefficientRollingViscousDamping peratomtypepair 2 0.1 0.1 0.1 0.1
+fix yieldPress all property/global yieldPress peratomtype 62000000000.0 20000000000.0
+fix characteristicVelocity all property/global characteristicVelocity scalar 0.1 0.1
+thermo_style custom time dt atoms
+thermo 10000
+thermo_modify norm no lost ignore
+read_restart outputs/0pt602/2pt8_25pt4/sim_out_12:12:16_6-11-2022/restart/restart.binary.48955000
+ERROR: Cannot read_restart after simulation box is defined (../read_restart.cpp:112)
