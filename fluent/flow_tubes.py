@@ -1,7 +1,9 @@
+import numpy as np
+
 from dimension import *
 import matplotlib.pyplot as plt
 
-from scipy.optimize import fsolve
+from scipy.optimize import fsolve, curve_fit
 from fluent import cheng_dp
 
 
@@ -347,6 +349,18 @@ def reynold(rho: Derived, u: Derived, tau: float, porosity: float, d: Length, mu
     vx = tau*u/porosity
     return rho*vx*hydr_D/mu
 
+def exp_fit(x: float, a: float, b: float,c: float)->float:
+    return a*np.exp(b*x)+c
+
+def pow_fit(x: float, a: float, b: float,c: float)->float:
+    return a*x**b+c
+
+def l_from_por_n(por: float, n: float, Dp: Length, D: Length):
+    k1 = n*(Dp**2)/(D**2)
+    k2 = 1.5 * (1 - por) / k1
+    l = Dp / k2
+    return l
+
 # TODO: Differing porosity calculation at core and annulus
 # TODO: define annulus hydr
 
@@ -455,15 +469,15 @@ if __name__ == "__main__":
         flowpath_dp_wavg_Ds[float(Ds[i].get(Length.inch)).__round__(3)].append(flowpath_dp_wavg[i])
 
     print("flow paths 1.029 3/32:", flowpath_dp_wavg_Ds[1.029][-1])
-    # for D in Ns_Ds.keys():
-    #     fig, ax = plt.subplots()
-    #     ax.scatter(Ns_Ds[D], cheng_dp_Ds[D], label="cheng, D=" + str(D))
-    #     ax.scatter(Ns_Ds[D], flowpath_dp_wavg_Ds[D], label="flow paths, D=" + str(D))
-    #     ax.set_xlabel("D/d ratio")
-    #     ax.set_ylabel("pressure drop (Pa/m)")
-    #     ax.legend()
-    #     plt.show()
-    #
+    for D in Ns_Ds.keys():
+        fig, ax = plt.subplots()
+        ax.scatter(Ns_Ds[D], cheng_dp_Ds[D], label="cheng, D=" + str(D))
+        ax.scatter(Ns_Ds[D], flowpath_dp_wavg_Ds[D], label="flow paths, D=" + str(D))
+        ax.set_xlabel("D/d ratio")
+        ax.set_ylabel("pressure drop (Pa/m)")
+        ax.legend()
+        plt.show()
+
     # fig, ax = plt.subplots()
     # ax.scatter(Ns, flowpath_dp_wavg,label="Flow paths (weight avg)")
     # ax.scatter(Ns, flowpath_dp_cores, label="Core")
@@ -473,7 +487,7 @@ if __name__ == "__main__":
     # ax.set_ylabel("pressure drop (Pa/m)")
     # ax.legend()
     # plt.show()
-    #
+
     # fig1, ax1 = plt.subplots()
     # Cheng_Aws = [A_E/M_factor(N,poros)**2 for A_E,N,poros in zip(A_Es,Ns,poroses)]
     # ax1.scatter(Ns,weight_aws,label="Flow paths (weight avg)")
@@ -496,12 +510,71 @@ if __name__ == "__main__":
     # ax2.legend()
     # plt.show()
 
-    fig3, ax3 = plt.subplots()
-    ax3.scatter(Ns, ns, label="number per layer")
-    ax3.set_xlabel("D/d ratio")
-    ax3.set_ylabel("quantity")
-    ax3.legend()
-    plt.show()
+    # fig3, ax3 = plt.subplots()
+    # ax3.scatter(Ns, ns, label="number per layer")
+    # ax3.set_xlabel("D/d ratio")
+    # ax3.set_ylabel("quantity")
+    #
+    #
+    # xdata = np.array(Ns[:-3])
+    # ydata = np.array(ns[:-3])
+    # coefs, conv = curve_fit(pow_fit, xdata, ydata,)
+    # print("coefs:", coefs)
+    # print("conv:", conv)
+    # perr = np.sqrt(np.diag(conv))
+    # print("err:",perr)
+    # xs = np.linspace(0,13)
+    # ax3.plot(xs, pow_fit(xs, *coefs), 'r-',
+    #          label='fit: a=%5.3f, b=%5.3f, c=%5.3f' % tuple(coefs))
+    # ax3.legend()
+    # plt.show()
+
+    # coefs = [0.41172613, 2.32943756, 0.39931516]
+    # calc_n = [pow_fit(N,coefs[0],coefs[1],coefs[2],) for N in Ns]
+    # calc_l = [l_from_por_n(por, n, Dp, D) for por, n, Dp, D in zip(poroses, calc_n, ds, Ds)]
+    # calc_expand_cores = [expand_factor_core(d, n, D, n_a) for d, n, D, n_a in zip(ds, calc_n, Ds, n_as)]
+    # calc_tau_as = [tau_ann(l, d) for l, d in zip(calc_l, ds)]
+    # calc_tau_cs = [tau_core(l, d) for l, d in zip(calc_l, ds)]
+    # calc_alpha_cores = [alpha_new(cf1, cf2, rho, tau, mu, u, d, poros, a) for tau, u, d, poros, a in
+    #                zip(calc_tau_cs, us, ds, poroses, calc_expand_cores)]
+    # calc_Aw_cores = [Aw_derive(alph, epsilon, d, N) for alph, epsilon, d, N in zip(calc_alpha_cores, poroses, ds, Ns)]
+    # calc_alpha_anns = [alpha_ann(cf1, cf2, rho, tau, mu, u, d, poros, D) for tau, u, d, poros, D in
+    #               zip(calc_tau_as, us, ds, poroses, Ds)]
+    # calc_Aw_anns = [Aw_derive(alph, epsilon, d, N) for alph, epsilon, d, N in zip(calc_alpha_anns, poroses, ds, Ns)]
+    #
+    # calc_Ergun_alphas = [Ergun_alpha(A_E, poros, d) for A_E, poros, d in zip(A_Es, poroses, ds)]
+    #
+    # calc_beta_cores = [beta_new(cD, tau, l, poros) for tau, l, poros in zip(calc_tau_cs, ls, poroses)]
+    # calc_Bw_cores = [Bw_derive(bet,epsilon,d,N) for bet,epsilon,d,N in zip(calc_beta_cores,poroses,ds,Ns)]
+    # calc_beta_anns = [beta_new(cD, tau, l, poros) for tau, l, poros in zip(calc_tau_as, ls, poroses)]
+    # calc_Bw_anns = [Bw_derive(bet,epsilon,d,N) for bet,epsilon,d,N in zip(calc_beta_anns,poroses,ds,Ns)]
+    #
+    # calc_Ergun_betas = [Ergun_beta(B_E, poros, d) for B_E, poros, d in zip(B_Es, poroses, ds)]
+    #
+    # calc_weight_aws = [af*awa + (1-af)*awc for af,awa,awc in zip(ann_fs, calc_Aw_anns, calc_Aw_cores)]
+    # calc_weight_bws = [af*bwa + (1-af)*bwc for af,bwa,bwc in zip(ann_fs, calc_Bw_anns, calc_Bw_cores)]
+    #
+    # fig1, ax1 = plt.subplots()
+    # Cheng_Aws = [A_E/M_factor(N,poros)**2 for A_E,N,poros in zip(A_Es,Ns,poroses)]
+    # ax1.scatter(Ns,calc_weight_aws,label="Flow paths (weight avg)")
+    # ax1.scatter(Ns, calc_Aw_cores, label="Core")
+    # ax1.scatter(Ns, calc_Aw_anns, label="Annulus")
+    # ax1.plot(Ns,Cheng_Aws,label="Cheng",c='r')
+    # ax1.set_xlabel("D/d ratio")
+    # ax1.set_ylabel("Aw")
+    # ax1.legend()
+    # plt.show()
+    #
+    # fig2, ax2 = plt.subplots()
+    # Cheng_Bws = [B_E / M_factor(N, poros) for B_E, N, poros in zip(B_Es, Ns, poroses)]
+    # ax2.scatter(Ns,calc_weight_bws,label="Flow paths (weight avg)")
+    # ax2.scatter(Ns, calc_Bw_cores, label="Core")
+    # ax2.scatter(Ns, calc_Bw_anns, label="Annulus")
+    # ax2.plot(Ns, Cheng_Bws,label="Cheng",c='r')
+    # ax2.set_xlabel("D/d ratio")
+    # ax2.set_ylabel("Bw")
+    # ax2.legend()
+    # plt.show()
 
     # fig4, ax4 = plt.subplots()
     # ax4.scatter(Ns, [l/d for l,d in zip(ls,ds)], label="layer heights")

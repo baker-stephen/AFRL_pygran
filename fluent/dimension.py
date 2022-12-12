@@ -960,6 +960,99 @@ class Force(Derived):
         else:
             raise ValueError("Invalid minor string in get Force.")
 
+
+class Permeability(Derived):
+
+    default = "m2"
+    m2 = "N"
+    D = "D"
+    mD = "mD"
+    nD = "nD"
+
+    def __init__(self, value, unit):
+        self.invalid = False
+        if unit == self.m2:
+            self.value = value
+        elif unit == self.D:
+            self.value = value*9.869233e-13
+        elif unit == self.mD:
+            self.value = cc.milli_(value)*9.869233e-13
+        elif unit == self.nD:
+            self.value = cc.nano_(value)*9.869233e-13
+        else:
+            self.invalid = True
+            raise ValueError("Invalid minor unit in Permeability.")
+        super().__init__(self.value,
+                         units={Unit(Length, Length.m):2,})
+
+    def __str__(self):
+        if self.invalid:
+            return "Invalid"
+        else:
+            return "{:e} m^2".format(self.value)
+
+    def get_default(self):
+        return self.value
+
+    def get(self, unit: str):
+        if unit == self.m2:
+            return self.value
+        elif unit == self.D:
+            return self.value / 9.869233e-13
+        elif unit == self.mD:
+            return self.value * 1e3 / 9.869233e-13
+        elif unit == self.nD:
+            return self.value * 1e9 / 9.869233e-13
+        else:
+            raise ValueError("Invalid minor string in get Permeabilty.")
+
+
+class Viscosity(Derived):
+
+    default = "Pas"
+    Pas = "Pas"
+    P = "P"
+    cP = "cP"
+    mP = "mP"
+
+    def __init__(self, value, unit):
+        self.invalid = False
+        if unit == self.Pas:
+            self.value = value
+        elif unit == self.P:
+            self.value = value*0.1
+        elif unit == self.cP:
+            self.value = value*1e-3
+        elif unit == self.mP:
+            self.value = value*1e-4
+        else:
+            self.invalid = True
+            raise ValueError("Invalid minor unit in Viscosity.")
+        super().__init__(self.value,
+                         units={Unit(Mass, Mass.kg):1,Unit(Length, Length.m):-1,Unit(Time, Time.s):-1,})
+
+    def __str__(self):
+        if self.invalid:
+            return "Invalid"
+        else:
+            return "{:e} Pa*s".format(self.value)
+
+    def get_default(self):
+        return self.value
+
+    def get(self, unit: str):
+        if unit == self.Pas:
+            return self.value
+        elif unit == self.P:
+            return self.value * 10
+        elif unit == self.cP:
+            return self.value * 1e3
+        elif unit == self.mP:
+            return self.value * 1e4
+        else:
+            raise ValueError("Invalid minor string in get Viscosity.")
+
+
 # TODO: fundies so we can restore tempenergy
 class Temperature(Dimension):
 

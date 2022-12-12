@@ -213,7 +213,7 @@ if __name__ == "__main__":
     print("Cheng poros:", poros_Cheng(N))
     print("Guo poros:", poros_Guo(N))
     print("Sato poros:",poros_Sato(N))
-    C1_other, C2_other = C1C2_old(A_E, B_E, porosity, Dp)
+    C1_other, C2_other = C1C2(A_E, B_E, porosity, Dp)
     print("C1 other: ", C1_other)
     print(float(C1_other))
     print("C2 other: ", C2_other)
