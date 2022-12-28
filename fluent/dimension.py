@@ -382,7 +382,6 @@ class Derived(Dimension):
 
         unit: Unit
         for unit in units_list:
-            print("u:", unit)
             if not unit.major.mro().__contains__(Derived):
                 continue
 

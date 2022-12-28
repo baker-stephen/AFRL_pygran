@@ -104,9 +104,13 @@ if __name__ == "__main__":
 
     # Density of water defined in Fluent materials.
     rho = Derived(998.2, {Unit(Mass, Mass.kg): 1, Unit(Length, Length.m): -3, })
+    # Density of air defined in Fluent materials.
+    # rho = Derived(1.225, {Unit(Mass, Mass.kg): 1, Unit(Length, Length.m): -3, })
 
     # Dynamic viscosity of water defined in Fluent materials.
     dyn_viscosity = Derived(0.001003,{Unit(Mass, Mass.kg): 1, Unit(Length, Length.m): -1,Unit(Time,Time.s):-1})
+    # Dynamic viscosity of air defined in Fluent materials.
+    # dyn_viscosity = Derived(1.7894e-05, {Unit(Mass, Mass.kg): 1, Unit(Length, Length.m): -1, Unit(Time, Time.s): -1})
 
     # Pipe length
     leng = Length(12,Length.inch)
@@ -129,20 +133,21 @@ if __name__ == "__main__":
     D_one_one_half_outside = Length(1.9, Length.inch)
 
     # TODO: Set the sphere (pellet) diameter
-    Dp = Length(3/32,Length.inch)
+    Dp = Length(0.7, Length.mm)
     # TODO: Set he inner diameter
-    D = D_one
+    D = D_one_quarter
     N = float(D / Dp)
-    print("N:",N)
+    # print("N:",N)
     empirical_porosity = poros_Foumeny(N) if poros_Guo(N) == -1 else poros_Guo(N)
     # empirical_porosity = poros_Cheng(N)
     # TODO: Manually enter Pygran fitted volume-averaged porosity from outputs.txt
-    porosity = 0.34550914
+    porosity = 0.39143350491468887
     # porosity = empirical_porosity
-    D_H = np.sqrt(8*Dp**2*porosity**3/(9*(1-porosity)**2))
-    print("D_H:",D_H.get_special([Unit(Length,Length.inch)]))
-    A_H_ratio = D_H**2/D**2
-    print("A_H_ratio:",A_H_ratio)
+
+    # D_H = np.sqrt(8*Dp**2*porosity**3/(9*(1-porosity)**2))
+    # print("D_H:",D_H.get_special([Unit(Length,Length.inch)]))
+    # A_H_ratio = D_H**2/D**2
+    # print("A_H_ratio:",A_H_ratio)
 
     # Calulate mass flow rate from volumetric flow rate of experiment
     rho_h20_exp = Derived(998.23, {Unit(Mass, Mass.kg): 1, Unit(Length, Length.m): -3, })
@@ -167,8 +172,11 @@ if __name__ == "__main__":
 
     print("\nNamed Expressions:")
     print("MAKE SURE THESE ARE UPDATED BETWEEN RUNS")
-    print("Dp:", float(Dp))
-    print("ID:", float(D))
+    print("Dp:", float(Dp),"[m]")
+    print("ID:", float(D),"[m]")
+    print("Before defining poros_fourier, p_r needs to be defined. \n"
+          "If 2D, p_r: y\n"
+          "If 3D, p_r: sqrt(x^2+y^2)")
     print("poros_fourier:", "COPY FROM outputs.txt, the line under 'Fourier fit degree __ -'")
 
     print("\nThe rest can be safely copy/pasted between runs:")
@@ -180,14 +188,13 @@ if __name__ == "__main__":
     print("N:", "ID / Dp")
     print("p_r:", "sqrt(x^2+y^2)")
     print("poros:", "max(min(poros_fourier,1),0)")
-    print("A_E:", "(a1 + (a2*poros/(1-poros))*(N/(N-1))^2)")
-    print("B_E:", "(b1*((1-poros)/poros)^(1/3)+b2*(N/(N-1))^2)")
-    # Adjusted C1, C2. Use commented lines for original.
-    # Did some testing
-    # print("C1:", "A_E * (1 - poros) ^ 2 / (poros ^ 2 * Dp ^ 2)")
-    print("C1:", "A_E * (1 - poros) ^ 2 / (poros ^ 3 * Dp ^ 2)") # One extra power of porosity in denominator
-    # print("C2:", "2*B_E*(1-poros)/(poros*Dp)")
-    print("C2:", "2*B_E*(1-poros)/(poros**3*Dp)") # Two extra powers of porosity in denominator
+    print("A_E:", "a1 + (a2*poros/(1-poros))*(N/(N-1))**m")
+    print("B_E:", "b1*((1-poros)/poros)^(1/3)+b2*(N/(N-1))**m")
+    # Commented lines are an adjusted C1 and C2 which proved to be incorrect.
+    # print("C1:", "A_E * (1 - poros) ^ 2 / (poros ^ 2 * Dp ^ 2)") # One fewer power of porosity in denominator
+    print("C1:", "A_E * (1 - poros) ^ 2 / (poros ^ 3 * Dp ^ 2)")
+    # print("C2:", "2*B_E*(1-poros)/(poros*Dp)") # Two fewer powers of porosity in denominator
+    print("C2:", "2*B_E*(1-poros)/(poros**3*Dp)")
 
     print("\n1D estimates for comparison:")
     print("physical velocity:",superficial_velo/porosity)
@@ -219,16 +226,17 @@ if __name__ == "__main__":
     print("C2 other: ", C2_other)
     print(float(C2_other))
 
-    sdpdx = Derived(20.523858267716538,{Unit(Pressure,Pressure.Pa):1,Unit(Length,Length.m):-1})
-    RHS = sdpdx/dyn_viscosity
-    print("RHS:",RHS)
-    print(float(RHS))
-    mat_Q = mdot/rho
-    print("mat_Q:",mat_Q)
-    tau = 1.54361554933
-    dhx = Dp*0.408248290464
-    Recivan = rho*tau*superficial_velo*dhx/(porosity*dyn_viscosity)
-    print("REcivan:",Recivan)
+    # sdpdx = Derived(20.523858267716538,{Unit(Pressure,Pressure.Pa):1,Unit(Length,Length.m):-1})
+    # RHS = sdpdx/dyn_viscosity
+    # print("RHS:",RHS)
+    # print(float(RHS))
+    # mat_Q = mdot/rho
+    # print("mat_Q:",mat_Q)
+    # tau = 1.54361554933
+    # dhx = Dp*0.408248290464
+    # Recivan = rho*tau*superficial_velo*dhx/(porosity*dyn_viscosity)
+    # print("REcivan:",Recivan)
+    # print("Re:",Re)
 
 
 
