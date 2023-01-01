@@ -46,3 +46,5 @@ Fluent porosity: 0.39160764
 Fluent C1: 1.0218752e+10
 Fluent C2: 197536.08
 Fluent dpdx: 46579499.47685132
+
+weighted std dev: 0.1659919260021086

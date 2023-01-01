@@ -79,7 +79,9 @@ def find_mdot(density: Derived, h: Length, C_D: float, diameter: Length) -> Deri
 
 def cheng_dp(A_E:float, B_E:float, porosity:float, density:Derived, dyn_viscosity:Derived, part_diameter:Length, superficial_velo:Derived) -> Derived:
     # This is the big one. dP/dx as given by Cheng.
-    return A_E * (1 - porosity) ** 2 * dyn_viscosity * superficial_velo / (porosity ** 3 * part_diameter ** 2) + B_E * (1 - porosity) * density * superficial_velo ** 2 / (porosity ** 3 * part_diameter)
+    print("T1:",A_E * (1 - porosity) ** 2 * dyn_viscosity * superficial_velo / ((porosity ** 3) * (part_diameter ** 2)))
+    print("T2:",B_E * (1 - porosity) * density * (superficial_velo ** 2) / ((porosity ** 3) * part_diameter))
+    return A_E * (1 - porosity) ** 2 * dyn_viscosity * superficial_velo / ((porosity ** 3) * (part_diameter ** 2)) + B_E * (1 - porosity) * density * (superficial_velo ** 2) / ((porosity ** 3) * part_diameter)
 
 def reynold(porosity:float, part_diameter:Length,superficial_velo:Derived,kinematic_visosity:Derived) -> float:
     # Reynolds number in porous media.
@@ -141,7 +143,7 @@ if __name__ == "__main__":
     empirical_porosity = poros_Foumeny(N) if poros_Guo(N) == -1 else poros_Guo(N)
     # empirical_porosity = poros_Cheng(N)
     # TODO: Manually enter Pygran fitted volume-averaged porosity from outputs.txt
-    porosity = 0.39143350491468887
+    porosity = 0.39160764
     # porosity = empirical_porosity
 
     # D_H = np.sqrt(8*Dp**2*porosity**3/(9*(1-porosity)**2))

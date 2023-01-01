@@ -25,3 +25,5 @@ std dev from generated pts: 0.1866560857009872
 plotme runtime: 1.5386333465576172
 
 volume averaged porosity: 0.373357904013412
+
+weighted std dev: 0.2019079297123844

@@ -5,7 +5,7 @@ from sklearn.linear_model import LinearRegression
 if __name__ =="__main__":
     xs = []
     press = []
-    with open('axial_pressure_data/0pt26-0pt7_25pt4-2D.xy', 'r') as read:
+    with open('axial_pressure_data/0pt26-0pt7_25pt4-2D-uniform-sv-lam.xy', 'r') as read:
         for i,line in enumerate(read):
             if i<4:
                 # print("non-data line:",line)
