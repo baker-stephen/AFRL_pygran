@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 from scipy.optimize import fsolve, curve_fit
 from fluent import cheng_dp
 
+#TODO: ensure definitions match paper, I believe I changed theta, Theta, and n_o
+#TODO: seperate definitions for n_o in core and annulus, see paper
+
 
 def tau_ann(l: Length, d: Length) -> float:
     """
@@ -158,7 +161,7 @@ def alpha_new(cf1: float, cf2: float, rho: Derived, tau: float, mu: Derived, u: 
     :return: alpha (1/m^2)
     """
     hydr_D = 0.5*d*(4*a**2-np.pi)/(2*(a-1) + np.pi/2)
-    return cf1 * 2 * np.pi * rho ** (1 - cf2) * tau ** (2 - cf2) * mu ** (cf2 - 1) * u ** (1 - cf2) / (
+    return cf1 * np.pi * rho ** (1 - cf2) * tau ** (2 - cf2) * mu ** (cf2 - 1) * u ** (1 - cf2) / (
         2 * (a**2 - np.pi/4) * phi ** (2 - cf2) * d * hydr_D**cf2)
 
 def alpha_ann(cf1: float, cf2: float, rho: Derived, tau: float, mu: Derived, u: Derived, d: Length,
